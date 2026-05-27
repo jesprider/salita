@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useHillChartStore } from '../stores/hillChart'
 import { useHillCurve } from '../composables/useHillCurve'
@@ -8,18 +9,45 @@ import Dot from './Dot.vue'
 
 const store = useHillChartStore()
 const { projects } = storeToRefs(store)
-const { CHART, curvePath, curveX, curveY } = useHillCurve()
+const { CHART, curvePath, curveX, curveY, positionFromRatio } = useHillCurve()
 
 const path = curvePath()
 const baseline = CHART.height - CHART.bottomPad
 
+const svgRef = ref<SVGSVGElement | null>(null)
+let draggingId: string | null = null
+
 function activeCount(project: Project, direction: 'up' | 'down'): number {
   return project.forces.filter((f) => f.direction === direction && f.status === 'active').length
 }
+
+function onMove(ev: PointerEvent) {
+  if (!draggingId || !svgRef.value) return
+  const rect = svgRef.value.getBoundingClientRect()
+  if (rect.width === 0) return
+  const ratio = (ev.clientX - rect.left) / rect.width
+  store.setPosition(draggingId, positionFromRatio(ratio))
+}
+
+function onUp() {
+  draggingId = null
+  window.removeEventListener('pointermove', onMove)
+  window.removeEventListener('pointerup', onUp)
+}
+
+function onGrab(id: string, ev: PointerEvent) {
+  ev.preventDefault()
+  draggingId = id
+  window.addEventListener('pointermove', onMove)
+  window.addEventListener('pointerup', onUp)
+}
+
+onBeforeUnmount(onUp)
 </script>
 
 <template>
   <svg
+    ref="svgRef"
     :viewBox="`0 0 ${CHART.width} ${CHART.height}`"
     class="h-auto w-full select-none"
     role="img"
@@ -39,6 +67,7 @@ function activeCount(project: Project, direction: 'up' | 'down'): number {
       :name="p.name"
       :up="activeCount(p, 'up')"
       :down="activeCount(p, 'down')"
+      @grab="(ev: PointerEvent) => onGrab(p.id, ev)"
     />
   </svg>
 </template>
