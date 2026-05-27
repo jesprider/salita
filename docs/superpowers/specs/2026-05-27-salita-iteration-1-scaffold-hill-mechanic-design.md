@@ -42,7 +42,7 @@ Per the parent spec:
 - **Linting:** ESLint + Prettier (standard Vue + TS setup)
 - **Charting:** native SVG + pointer events, no charting library
 
-Node 20 LTS, pinned via `.nvmrc` and `package.json` `engines`.
+Node 24 LTS, pinned via `.nvmrc` and `package.json` `engines`.
 
 ---
 
@@ -73,7 +73,7 @@ src/
 tailwind.config.ts             warm palette tokens (bg-cream, hill-sand, project palette, etc.)
 public/
   _redirects                   SPA fallback: /*  /index.html  200
-.nvmrc                         20
+.nvmrc                         24
 ```
 
 ---
