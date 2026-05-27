@@ -314,7 +314,7 @@ Standard Vite defaults, set in the Cloudflare Pages project settings on first co
 - **Build command:** `npm run build`
 - **Output directory:** `dist`
 - **Install command:** `npm ci` (uses the lockfile, deterministic)
-- **Node version:** 20 LTS (pin via `package.json` engines field and/or a `.nvmrc`)
+- **Node version:** 24 LTS (pin via `package.json` engines field and/or a `.nvmrc`)
 
 No `wrangler.toml` is needed for a plain static SPA.
 
