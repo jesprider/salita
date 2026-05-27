@@ -1,5 +1,5 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h1>Salita</h1>
+  <h1 class="font-heading text-terracotta p-6 text-3xl">Salita</h1>
 </template>
