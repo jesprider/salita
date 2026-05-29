@@ -70,7 +70,7 @@ src/
     useHillCurve.ts            curve math + pointer→position mapping
   styles/
     fonts.css                  Fraunces + Inter (Google Fonts)
-tailwind.config.ts             warm palette tokens (bg-cream, hill-sand, project palette, etc.)
+(Tailwind v4: tokens live in `src/styles/main.css` via `@theme` — no `tailwind.config.ts`)
 public/
   _redirects                   SPA fallback: /*  /index.html  200
 .nvmrc                         24
