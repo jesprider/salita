@@ -260,7 +260,7 @@ The workflow for "I want to add more from my tracker after first import": Export
 - **Build:** Vite.
 - **Store:** Pinia, with `pinia-plugin-persistedstate` syncing to `localStorage` under a single key (`hill-chart-state`).
 - **Router:** Vue Router with three routes: `/` (landing page), `/projects` (overview), and `/projects/:id` (project detail).
-- **Styling:** Tailwind CSS with the warm palette as design tokens in `tailwind.config.ts`.
+- **Styling:** Tailwind CSS v4 with the warm palette as design tokens declared via the `@theme` block in `src/styles/main.css` (no `tailwind.config.ts` in v4).
 - **Chart rendering:** SVG (native drag, crisp at any zoom). No charting library needed.
 - **Language:** TypeScript (recommended — schema types are core to the design).
 - **Linting:** ESLint + Prettier (standard Vue+TS setup).
