@@ -11,11 +11,12 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'grab', ev: PointerEvent): void
+  (e: 'open'): void
 }>()
 </script>
 
 <template>
-  <g class="cursor-grab" @pointerdown="emit('grab', $event)">
+  <g class="cursor-grab" @pointerdown="emit('grab', $event)" @dblclick="emit('open')">
     <circle :cx="cx" :cy="cy" :r="radius" :fill="color" stroke="#FDFAF4" stroke-width="2" />
     <text
       :x="cx"
