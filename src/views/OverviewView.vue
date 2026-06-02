@@ -23,8 +23,8 @@ function onOpen(id: string) {
 
 <template>
   <AppHeader />
-  <section class="px-6 pb-6">
-    <div class="mx-auto max-w-[1400px]">
+  <section class="px-6 py-6">
+    <div class="mx-auto max-w-[1200px]">
       <HillChart :markers="markers" @move="onMove" @open="onOpen" />
     </div>
   </section>

@@ -5,6 +5,8 @@
 **Parent spec:** `docs/salita-design-spec.md` (full v1)
 **Builds on:** `docs/superpowers/specs/2026-05-27-salita-iteration-1-scaffold-hill-mechanic-design.md`
 
+**Naming (current code):** [`docs/domain-vocabulary.md`](../../domain-vocabulary.md). This doc uses historical names (`DotView`, `Dot.vue`, etc.).
+
 Extends the hill mechanic to the two-level model. The `/projects/:id` view goes
 live: one large project dot plus its smaller task dots, all in the project's
 color, all draggable along the curve. Double-clicking a project dot on the

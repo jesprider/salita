@@ -44,7 +44,7 @@ export interface HillTrackable {
   snapshots: Snapshot[]
 }
 
-export interface Task extends HillTrackable {}
+export type Task = HillTrackable
 
 export interface Project extends HillTrackable {
   color: ProjectColor
