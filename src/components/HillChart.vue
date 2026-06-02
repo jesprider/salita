@@ -4,10 +4,11 @@ import { useHillCurve } from '../composables/useHillCurve'
 import type { DotView } from '../composables/dotViews'
 import Dot from './Dot.vue'
 
-defineProps<{ dots: DotView[] }>()
+const props = defineProps<{ dots: DotView[]; clickable?: boolean }>()
 const emit = defineEmits<{
   (e: 'move', id: string, position: number): void
   (e: 'open', id: string): void
+  (e: 'click', id: string): void
 }>()
 
 const { CHART, curvePath, curveX, curveY, positionFromRatio } = useHillCurve()
@@ -17,9 +18,16 @@ const baseline = CHART.height - CHART.bottomPad
 
 const svgRef = ref<SVGSVGElement | null>(null)
 let draggingId: string | null = null
+let dragStartX = 0
+let didDrag = false
+
+const DRAG_THRESHOLD_PX = 4
 
 function onMove(ev: PointerEvent) {
   if (!draggingId || !svgRef.value) return
+  if (Math.abs(ev.clientX - dragStartX) > DRAG_THRESHOLD_PX) {
+    didDrag = true
+  }
   const rect = svgRef.value.getBoundingClientRect()
   if (rect.width === 0) return
   const ratio = (ev.clientX - rect.left) / rect.width
@@ -27,6 +35,10 @@ function onMove(ev: PointerEvent) {
 }
 
 function onUp() {
+  const id = draggingId
+  if (id && !didDrag && props.clickable) {
+    emit('click', id)
+  }
   draggingId = null
   window.removeEventListener('pointermove', onMove)
   window.removeEventListener('pointerup', onUp)
@@ -35,6 +47,8 @@ function onUp() {
 function onGrab(id: string, ev: PointerEvent) {
   ev.preventDefault()
   draggingId = id
+  dragStartX = ev.clientX
+  didDrag = false
   window.addEventListener('pointermove', onMove)
   window.addEventListener('pointerup', onUp)
 }
