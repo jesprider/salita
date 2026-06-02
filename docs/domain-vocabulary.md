@@ -38,7 +38,7 @@ code and implementation docs use the terms below.
 | `lookupInProject` | Application | Given a `Project` + id → `InProjectLookup` or null. |
 | `InProjectLookup` | Application | `{ kind: TrackableKind, trackable: HillTrackable }`. |
 | `TrackableKind` | Application | `'project' \| 'task'`. |
-| `findTrackableById` | Store | Find `Project` or `Task` anywhere in state by id. |
+| `findTrackableById` | Store module (private) | Helper inside `hillChart.ts`; finds `Project` or `Task` by id. Not a Pinia action. |
 | `selectedTrackableId` | UI state | Which trackable the side panel shows (project view). |
 | `resolveForce` / `unresolveForce` | Store (planned) | Force lifecycle only. |
 

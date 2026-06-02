@@ -4,6 +4,8 @@
 **Status:** Approved
 **Parent spec:** `docs/salita-design-spec.md` (full v1)
 
+**Naming (current code):** [`docs/domain-vocabulary.md`](../../domain-vocabulary.md). This doc uses historical names (`Dot.vue`, etc.).
+
 A first prototype to evaluate the core idea. This iteration scaffolds the full
 app stack and builds the bare hill mechanic — a hill with draggable dots and
 force-count badges. No side panel, no persistence, no time dimension.
