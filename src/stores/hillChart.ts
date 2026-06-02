@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { HillChartState, Project, Task } from '../schema/types'
 import { sampleState } from '../data/sample'
+import { HILL_CHART_STORAGE_KEY } from '../storage/loadState'
 
 function findDot(projects: Project[], id: string): Project | Task | undefined {
   for (const project of projects) {
@@ -14,6 +15,9 @@ function findDot(projects: Project[], id: string): Project | Task | undefined {
 
 export const useHillChartStore = defineStore('hillChart', {
   state: (): HillChartState => structuredClone(sampleState),
+  persist: {
+    key: HILL_CHART_STORAGE_KEY,
+  },
   actions: {
     setPosition(id: string, position: number) {
       const dot = findDot(this.projects, id)

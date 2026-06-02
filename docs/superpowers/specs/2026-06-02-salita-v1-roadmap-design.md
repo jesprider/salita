@@ -45,7 +45,7 @@ whose status is `pending`** and work only that scope.
 |------|------|--------|-----------|
 | 1 | scaffold-hill-mechanic | **done** | — |
 | 2 | project-view-tasks | **done** | — |
-| 3 | persist-state | **pending** | M1 |
+| 3 | persist-state | **done** | M1 |
 | 4 | overview-chrome | **pending** | M1 |
 | 5 | side-panel-readonly | **pending** | M2 |
 | 6 | store-force-mutations | **pending** | M2 |
@@ -400,8 +400,9 @@ edit (iteration 8).
 |------|------------|
 | 1 | `docs/superpowers/specs/2026-05-27-salita-iteration-1-scaffold-hill-mechanic-design.md` |
 | 2 | `docs/superpowers/specs/2026-05-29-salita-iteration-2-project-view-tasks-design.md` |
+| 3 | `docs/superpowers/specs/2026-06-02-salita-iteration-3-persist-state-design.md` |
 
-*(Add rows here as iterations 3+ complete.)*
+*(Add rows here as iterations 4+ complete.)*
 
 ---
 
