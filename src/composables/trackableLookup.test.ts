@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { Project } from '../schema/types'
-import { resolveDotInProject, forcesByStatus } from './panelDot'
+import { lookupInProject, forcesByStatus } from './trackableLookup'
 
 const project: Project = {
   id: 'proj_1',
@@ -45,21 +45,21 @@ const project: Project = {
   ],
 }
 
-describe('resolveDotInProject', () => {
-  it('resolves the project dot', () => {
-    const result = resolveDotInProject(project, 'proj_1')
+describe('lookupInProject', () => {
+  it('finds the project trackable', () => {
+    const result = lookupInProject(project, 'proj_1')
     expect(result?.kind).toBe('project')
-    expect(result?.dot.name).toBe('Alpha')
+    expect(result?.trackable.name).toBe('Alpha')
   })
 
-  it('resolves a task dot', () => {
-    const result = resolveDotInProject(project, 'task_1')
+  it('finds a task trackable', () => {
+    const result = lookupInProject(project, 'task_1')
     expect(result?.kind).toBe('task')
-    expect(result?.dot.name).toBe('Task one')
+    expect(result?.trackable.name).toBe('Task one')
   })
 
   it('returns null for an unknown id', () => {
-    expect(resolveDotInProject(project, 'missing')).toBeNull()
+    expect(lookupInProject(project, 'missing')).toBeNull()
   })
 })
 

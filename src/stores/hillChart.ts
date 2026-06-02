@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import type { HillChartState, Project, Task } from '../schema/types'
+import type { HillChartState, HillTrackable, Project } from '../schema/types'
 import { sampleState } from '../data/sample'
 import { HILL_CHART_STORAGE_KEY } from '../storage/loadState'
 
-function findDot(projects: Project[], id: string): Project | Task | undefined {
+function findTrackableById(projects: Project[], id: string): HillTrackable | undefined {
   for (const project of projects) {
     if (project.id === id) return project
     for (const task of project.tasks) {
@@ -20,10 +20,10 @@ export const useHillChartStore = defineStore('hillChart', {
   },
   actions: {
     setPosition(id: string, position: number) {
-      const dot = findDot(this.projects, id)
-      if (!dot) return
-      dot.position = Math.min(100, Math.max(0, Math.round(position)))
-      dot.lastMovedAt = new Date().toISOString()
+      const trackable = findTrackableById(this.projects, id)
+      if (!trackable) return
+      trackable.position = Math.min(100, Math.max(0, Math.round(position)))
+      trackable.lastMovedAt = new Date().toISOString()
     },
   },
 })

@@ -33,7 +33,8 @@ export interface Snapshot {
   position: number
 }
 
-export interface Task {
+/** Shared by Project and Task — anything positioned on the hill with forces and history. */
+export interface HillTrackable {
   id: string
   name: string
   source?: Source
@@ -43,15 +44,10 @@ export interface Task {
   snapshots: Snapshot[]
 }
 
-export interface Project {
-  id: string
-  name: string
+export interface Task extends HillTrackable {}
+
+export interface Project extends HillTrackable {
   color: ProjectColor
-  source?: Source
-  position: number
-  lastMovedAt: string
-  forces: Force[]
-  snapshots: Snapshot[]
   tasks: Task[]
 }
 

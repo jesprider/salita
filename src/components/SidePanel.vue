@@ -1,46 +1,46 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Project } from '../schema/types'
-import { forcesByStatus, resolveDotInProject } from '../composables/panelDot'
+import { forcesByStatus, lookupInProject } from '../composables/trackableLookup'
 
 const props = defineProps<{
   project: Project
-  dotId: string
+  trackableId: string
 }>()
 
 defineEmits<{
   (e: 'close'): void
 }>()
 
-const resolved = computed(() => resolveDotInProject(props.project, props.dotId))
-const dot = computed(() => resolved.value?.dot ?? null)
-const kind = computed(() => resolved.value?.kind ?? null)
+const lookup = computed(() => lookupInProject(props.project, props.trackableId))
+const trackable = computed(() => lookup.value?.trackable ?? null)
+const kind = computed(() => lookup.value?.kind ?? null)
 
 const activeUp = computed(() =>
-  dot.value ? forcesByStatus(dot.value.forces, 'up', 'active') : [],
+  trackable.value ? forcesByStatus(trackable.value.forces, 'up', 'active') : [],
 )
 const activeDown = computed(() =>
-  dot.value ? forcesByStatus(dot.value.forces, 'down', 'active') : [],
+  trackable.value ? forcesByStatus(trackable.value.forces, 'down', 'active') : [],
 )
 const pastUp = computed(() =>
-  dot.value ? forcesByStatus(dot.value.forces, 'up', 'resolved') : [],
+  trackable.value ? forcesByStatus(trackable.value.forces, 'up', 'resolved') : [],
 )
 const pastDown = computed(() =>
-  dot.value ? forcesByStatus(dot.value.forces, 'down', 'resolved') : [],
+  trackable.value ? forcesByStatus(trackable.value.forces, 'down', 'resolved') : [],
 )
 
-const atPeak = computed(() => dot.value?.position === 50)
+const atPeak = computed(() => trackable.value?.position === 50)
 </script>
 
 <template>
   <aside
-    v-if="dot"
+    v-if="trackable"
     class="w-80 shrink-0 rounded-2xl bg-cream p-5 shadow-sm ring-1 ring-hill-sand/60"
-    aria-label="Dot details"
+    aria-label="Work item details"
   >
     <div class="mb-6 flex items-start justify-between gap-3">
       <div class="min-w-0">
-        <h2 class="font-heading text-xl leading-tight">{{ dot.name }}</h2>
+        <h2 class="font-heading text-xl leading-tight">{{ trackable.name }}</h2>
         <span
           class="mt-2 inline-block rounded-full bg-hill-sand px-2.5 py-0.5 text-xs capitalize"
         >
@@ -57,20 +57,20 @@ const atPeak = computed(() => dot.value?.position === 50)
       </button>
     </div>
 
-    <p v-if="dot.source?.url" class="mb-6 text-sm">
+    <p v-if="trackable.source?.url" class="mb-6 text-sm">
       <a
-        :href="dot.source.url"
+        :href="trackable.source.url"
         target="_blank"
         rel="noopener noreferrer"
         class="text-terracotta underline-offset-2 hover:underline"
       >
-        {{ dot.source.system ? `${dot.source.system}:` : '' }}{{ dot.source.id ?? dot.source.url }}
+        {{ trackable.source.system ? `${trackable.source.system}:` : '' }}{{ trackable.source.id ?? trackable.source.url }}
       </a>
     </p>
 
     <section class="mb-6">
       <h3 class="mb-2 text-xs font-medium tracking-wide text-text-warm/60 uppercase">Position</h3>
-      <p class="text-lg">{{ dot.position }}</p>
+      <p class="text-lg">{{ trackable.position }}</p>
       <p v-if="atPeak" class="mt-1 text-sm text-text-warm/70">At the peak</p>
     </section>
 
