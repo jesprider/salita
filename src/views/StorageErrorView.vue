@@ -16,13 +16,12 @@ defineProps<{
           HILL_CHART_STORAGE_KEY
         }}</code>
       </p>
-      <pre
-        class="mb-6 overflow-x-auto rounded-lg bg-hill-sand p-4 text-sm whitespace-pre-wrap"
-        >{{ message }}</pre
-      >
+      <pre class="mb-6 overflow-x-auto rounded-lg bg-hill-sand p-4 text-sm whitespace-pre-wrap">{{
+        message
+      }}</pre>
       <p class="text-sm text-text-warm/80">
-        Chart data is stored locally in your browser. Clear the key above in DevTools → Application →
-        Local Storage, then reload to start fresh.
+        Chart data is stored locally in your browser. Clear the key above in DevTools → Application
+        → Local Storage, then reload to start fresh.
       </p>
     </div>
   </div>
