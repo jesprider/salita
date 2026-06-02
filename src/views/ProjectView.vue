@@ -3,7 +3,7 @@ import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useHillChartStore } from '../stores/hillChart'
-import { projectDotViews } from '../composables/dotViews'
+import { markersForProject } from '../composables/chartMarkers'
 import HillChart from '../components/HillChart.vue'
 import SidePanel from '../components/SidePanel.vue'
 
@@ -12,20 +12,20 @@ const props = defineProps<{ id: string }>()
 const store = useHillChartStore()
 const router = useRouter()
 const { projects } = storeToRefs(store)
-const selectedDotId = ref<string | null>(null)
+const selectedTrackableId = ref<string | null>(null)
 
 const project = computed(() => projects.value.find((p) => p.id === props.id))
-const dots = computed(() => (project.value ? projectDotViews(project.value) : []))
+const markers = computed(() => (project.value ? markersForProject(project.value) : []))
 
 watchEffect(() => {
   if (!project.value) router.replace('/projects')
 })
 
 watchEffect(() => {
-  if (!project.value || !selectedDotId.value) return
-  const ids = dots.value.map((d) => d.id)
-  if (!ids.includes(selectedDotId.value)) {
-    selectedDotId.value = null
+  if (!project.value || !selectedTrackableId.value) return
+  const ids = markers.value.map((m) => m.id)
+  if (!ids.includes(selectedTrackableId.value)) {
+    selectedTrackableId.value = null
   }
 })
 
@@ -33,8 +33,8 @@ function onMove(id: string, position: number) {
   store.setPosition(id, position)
 }
 
-function onDotClick(id: string) {
-  selectedDotId.value = selectedDotId.value === id ? null : id
+function onTrackableClick(id: string) {
+  selectedTrackableId.value = selectedTrackableId.value === id ? null : id
 }
 </script>
 
@@ -50,17 +50,17 @@ function onDotClick(id: string) {
       <div class="min-w-0 flex-1">
         <HillChart
           v-if="project"
-          :dots="dots"
+          :markers="markers"
           clickable
           @move="onMove"
-          @click="onDotClick"
+          @click="onTrackableClick"
         />
       </div>
       <SidePanel
-        v-if="project && selectedDotId"
+        v-if="project && selectedTrackableId"
         :project="project"
-        :dot-id="selectedDotId"
-        @close="selectedDotId = null"
+        :trackable-id="selectedTrackableId"
+        @close="selectedTrackableId = null"
       />
     </div>
   </section>

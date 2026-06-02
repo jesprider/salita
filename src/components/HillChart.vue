@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, onBeforeUnmount } from 'vue'
 import { useHillCurve } from '../composables/useHillCurve'
-import type { DotView } from '../composables/dotViews'
-import Dot from './Dot.vue'
+import type { ChartMarker as ChartMarkerModel } from '../composables/chartMarkers'
+import ChartMarker from './ChartMarker.vue'
 
-const props = defineProps<{ dots: DotView[]; clickable?: boolean }>()
+const props = defineProps<{ markers: ChartMarkerModel[]; clickable?: boolean }>()
 const emit = defineEmits<{
   (e: 'move', id: string, position: number): void
   (e: 'open', id: string): void
@@ -72,18 +72,18 @@ onBeforeUnmount(onUp)
     <path :d="path" fill="none" stroke="#E8D9BD" stroke-width="3" />
     <line :x1="0" :y1="baseline" :x2="CHART.width" :y2="baseline" stroke="#E8D9BD" stroke-width="2" />
 
-    <Dot
-      v-for="d in dots"
-      :key="d.id"
-      :cx="curveX(d.position)"
-      :cy="curveY(d.position)"
-      :radius="d.radius"
-      :color="d.color"
-      :name="d.name"
-      :up="d.up"
-      :down="d.down"
-      @grab="(ev: PointerEvent) => onGrab(d.id, ev)"
-      @open="emit('open', d.id)"
+    <ChartMarker
+      v-for="m in markers"
+      :key="m.id"
+      :cx="curveX(m.position)"
+      :cy="curveY(m.position)"
+      :radius="m.radius"
+      :color="m.color"
+      :name="m.name"
+      :up="m.up"
+      :down="m.down"
+      @grab="(ev: PointerEvent) => onGrab(m.id, ev)"
+      @open="emit('open', m.id)"
     />
   </svg>
 </template>

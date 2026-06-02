@@ -1,16 +1,16 @@
-import type { Force, ForceDirection, ForceStatus, Project, Task } from '../schema/types'
+import type { Force, ForceDirection, ForceStatus, HillTrackable, Project } from '../schema/types'
 
-export type DotKind = 'project' | 'task'
+export type TrackableKind = 'project' | 'task'
 
-export interface ResolvedDot {
-  kind: DotKind
-  dot: Project | Task
+export interface InProjectLookup {
+  kind: TrackableKind
+  trackable: HillTrackable
 }
 
-export function resolveDotInProject(project: Project, id: string): ResolvedDot | null {
-  if (project.id === id) return { kind: 'project', dot: project }
+export function lookupInProject(project: Project, id: string): InProjectLookup | null {
+  if (project.id === id) return { kind: 'project', trackable: project }
   const task = project.tasks.find((t) => t.id === id)
-  if (task) return { kind: 'task', dot: task }
+  if (task) return { kind: 'task', trackable: task }
   return null
 }
 
