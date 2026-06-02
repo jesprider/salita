@@ -36,6 +36,16 @@ Forces are **context for the conversation**, not physics. They don't move the do
 
 **Staleness.** If a dot's position doesn't change for too long, it tints red. Linear interpolation from project color → fully red over **5 calendar days** since the last position change.
 
+### Terms in code
+
+In conversation and UI we say **dot** (project dot, task dot). In the codebase:
+
+- **Project** and **Task** are domain entities (`schema/types.ts`); both implement **HillTrackable** (position, forces, snapshots).
+- **Chart marker** is what you see on the SVG — a presentation projection (`ChartMarker`), not a third entity.
+- **Resolve** is reserved for forces (`resolveForce`). Use **lookup** / **find** for locating a project or task by id.
+
+Full glossary: [`docs/domain-vocabulary.md`](domain-vocabulary.md).
+
 ---
 
 ## 3. Data model
@@ -279,8 +289,8 @@ src/
     OverviewView.vue
     ProjectView.vue
   components/
-    HillChart.vue      (the SVG curve + dots)
-    Dot.vue            (single dot with badges + drag)
+    HillChart.vue      (the SVG curve + chart markers)
+    ChartMarker.vue    (single marker with badges + drag)
     SidePanel.vue
     ForceChip.vue
     ForceAddForm.vue
@@ -291,7 +301,7 @@ src/
     useDrag.ts
     useStaleness.ts
   schema/
-    types.ts           (Project, Task, Force, Snapshot interfaces)
+    types.ts           (Project, Task, HillTrackable, Force, Snapshot interfaces)
     validate.ts        (JSON import validation)
   styles/
     fonts.css

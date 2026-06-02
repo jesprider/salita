@@ -1,7 +1,7 @@
 import type { Force, ForceDirection, Project } from '../schema/types'
 import { PALETTE } from '../schema/palette'
 
-export interface DotView {
+export interface ChartMarker {
   id: string
   position: number
   color: string
@@ -19,7 +19,7 @@ export function activeCount(forces: Force[], direction: ForceDirection): number 
   return forces.filter((f) => f.direction === direction && f.status === 'active').length
 }
 
-export function overviewDotViews(projects: Project[]): DotView[] {
+export function overviewMarkers(projects: Project[]): ChartMarker[] {
   return projects.map((p) => ({
     id: p.id,
     position: p.position,
@@ -31,9 +31,9 @@ export function overviewDotViews(projects: Project[]): DotView[] {
   }))
 }
 
-export function projectDotViews(project: Project): DotView[] {
+export function markersForProject(project: Project): ChartMarker[] {
   const color = PALETTE[project.color]
-  const projectDot: DotView = {
+  const projectMarker: ChartMarker = {
     id: project.id,
     position: project.position,
     color,
@@ -42,7 +42,7 @@ export function projectDotViews(project: Project): DotView[] {
     up: activeCount(project.forces, 'up'),
     down: activeCount(project.forces, 'down'),
   }
-  const taskDots: DotView[] = project.tasks.map((t) => ({
+  const taskMarkers: ChartMarker[] = project.tasks.map((t) => ({
     id: t.id,
     position: t.position,
     color,
@@ -51,5 +51,5 @@ export function projectDotViews(project: Project): DotView[] {
     up: activeCount(t.forces, 'up'),
     down: activeCount(t.forces, 'down'),
   }))
-  return [projectDot, ...taskDots]
+  return [projectMarker, ...taskMarkers]
 }

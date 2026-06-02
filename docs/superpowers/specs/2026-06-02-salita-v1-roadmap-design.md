@@ -15,17 +15,18 @@ whose status is `pending`** and work only that scope.
 ## How to pick up the next task (for humans and AI)
 
 1. Read `docs/salita-design-spec.md` for full product behavior.
-2. Read this file — find the first iteration with status **pending**.
-3. Read the completed iteration specs for context:
+2. Read `docs/domain-vocabulary.md` for code naming (Project, Task, HillTrackable, ChartMarker).
+3. Read this file — find the first iteration with status **pending**.
+4. Read the completed iteration specs for context:
    - `docs/superpowers/specs/2026-05-27-salita-iteration-1-scaffold-hill-mechanic-design.md`
    - `docs/superpowers/specs/2026-05-29-salita-iteration-2-project-view-tasks-design.md`
-4. Create a **new branch** (e.g. `iteration-3-persist-state`).
-5. Write a short iteration design doc:
+5. Create a **new branch** (e.g. `iteration-3-persist-state`).
+6. Write a short iteration design doc:
    `docs/superpowers/specs/YYYY-MM-DD-salita-iteration-N-<slug>-design.md`
-6. Implement **only** that iteration’s deliverables; do not pull forward later
+7. Implement **only** that iteration’s deliverables; do not pull forward later
    iterations.
-7. Verify: `npm run build` (and unit tests where the iteration adds them).
-8. Do **not** open a PR unless the user asks; commits authored as Roman only (no
+8. Verify: `npm run build` (and unit tests where the iteration adds them).
+9. Do **not** open a PR unless the user asks; commits authored as Roman only (no
    Co-Authored-By / Claude mentions), per prior iteration delivery notes.
 
 **Current codebase snapshot (after iteration 2):**
@@ -155,14 +156,14 @@ details; no editing yet.
 - `SidePanel.vue` (read-only sections): header (name, type badge, source link if
   present), position display, active up/down forces lists, past sections
   (collapsible), no forms.
-- `selectedDotId` (or equivalent) in app shell — panel is component state, not
-  in the URL (parent spec §4.4).
-- `HillChart` / `Dot`: emit **click** (distinct from drag and from `dblclick`
-  drill on overview) for project view only in this iteration.
+- `selectedTrackableId` in app shell — panel is component state, not in the URL
+  (parent spec §4.4).
+- `HillChart` / `ChartMarker`: emit **click** (distinct from drag and from
+  `dblclick` drill on overview) for project view only in this iteration.
 
 **Out of scope:** Overview click-to-panel; force add/resolve; slider; delete.
 
-**Likely touch:** `App.vue`, `components/SidePanel.vue`, `Dot.vue`,
+**Likely touch:** `App.vue`, `components/SidePanel.vue`, `ChartMarker.vue`,
 `HillChart.vue`, `views/ProjectView.vue`.
 
 ---
@@ -175,7 +176,7 @@ tests only if that keeps the PR small.
 
 **Deliverables:**
 
-- Actions: `addForce(dotId, direction, label, owner?)`, `updateForce`,
+- Actions: `addForce(trackableId, direction, label, owner?)`, `updateForce`,
   `resolveForce`, `unresolveForce` (names flexible; behavior per parent spec §3).
 - Preserve `isPrimary` assignee rules (cannot resolve primary).
 - Vitest coverage on pure helpers or store actions.
@@ -337,10 +338,10 @@ edit (iteration 8).
 
 **Deliverables:**
 
-- `composables/useStaleness.ts` (or inline in `dotViews`): `staleness =
+- `composables/useStaleness.ts` (or inline in `chartMarkers`): `staleness =
   min(daysSinceLastMove / 5, 1)`; lerp project color → `#C04A2D` (parent spec
   §5.8).
-- Apply to dot fill in `Dot.vue` / `DotView`.
+- Apply to marker fill in `ChartMarker.vue` / `ChartMarker`.
 
 ---
 
@@ -363,8 +364,8 @@ edit (iteration 8).
 **Deliverables:**
 
 - Position trail sparkline (full snapshot history) in panel §4.4 #7.
-- Danger zone: delete dot with confirm; store `removeProject` / `removeTask` (or
-  generic `removeDot`).
+- Danger zone: delete with confirm; store `removeProject` / `removeTask` (by
+  `trackableId` / kind).
 
 ---
 
