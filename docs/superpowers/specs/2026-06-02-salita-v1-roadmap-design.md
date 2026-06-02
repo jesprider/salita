@@ -46,7 +46,7 @@ whose status is `pending`** and work only that scope.
 | 1 | scaffold-hill-mechanic | **done** | — |
 | 2 | project-view-tasks | **done** | — |
 | 3 | persist-state | **done** | M1 |
-| 4 | overview-chrome | **pending** | M1 |
+| 4 | overview-chrome | **done** | M1 |
 | 5 | side-panel-readonly | **pending** | M2 |
 | 6 | store-force-mutations | **pending** | M2 |
 | 7 | panel-force-ux | **pending** | M3 |

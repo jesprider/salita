@@ -25,10 +25,14 @@ function onMove(id: string, position: number) {
 </script>
 
 <template>
-  <section class="px-6 py-6">
+  <header class="px-6 py-4">
+    <RouterLink to="/projects" class="text-sm text-text-warm/80 hover:text-text-warm">
+      ← Overview
+    </RouterLink>
+    <h1 v-if="project" class="mt-1 font-heading text-3xl">{{ project.name }}</h1>
+  </header>
+  <section class="px-6 pb-6">
     <div class="mx-auto max-w-[1200px]">
-      <RouterLink to="/projects" class="text-sm">← Overview</RouterLink>
-      <h1 v-if="project" class="mt-2 mb-2 font-heading text-3xl">{{ project.name }}</h1>
       <HillChart v-if="project" :dots="dots" @move="onMove" />
     </div>
   </section>
