@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useHillChartStore } from '../stores/hillChart'
 import { overviewDotViews } from '../composables/dotViews'
+import AppHeader from '../components/AppHeader.vue'
 import HillChart from '../components/HillChart.vue'
 
 const store = useHillChartStore()
@@ -21,6 +22,7 @@ function onOpen(id: string) {
 </script>
 
 <template>
+  <AppHeader />
   <section class="px-6 py-6">
     <div class="mx-auto max-w-[1200px]">
       <HillChart :dots="dots" @move="onMove" @open="onOpen" />

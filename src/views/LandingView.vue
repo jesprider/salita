@@ -1,7 +1,10 @@
 <script setup lang="ts"></script>
 
 <template>
-  <section class="max-w-2xl px-6 py-12">
+  <header class="px-6 py-4">
+    <RouterLink to="/" class="font-heading text-xl">Salita</RouterLink>
+  </header>
+  <section class="max-w-2xl px-6 py-8">
     <h1 class="mb-4 font-heading text-4xl">Run your daily on a hill</h1>
     <p class="mb-8">
       A manager's view of where each project sits on the uncertainty curve, and what's pushing it
