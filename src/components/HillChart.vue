@@ -70,7 +70,14 @@ onBeforeUnmount(onUp)
       opacity="0.45"
     />
     <path :d="path" fill="none" stroke="#E8D9BD" stroke-width="3" />
-    <line :x1="0" :y1="baseline" :x2="CHART.width" :y2="baseline" stroke="#E8D9BD" stroke-width="2" />
+    <line
+      :x1="0"
+      :y1="baseline"
+      :x2="CHART.width"
+      :y2="baseline"
+      stroke="#E8D9BD"
+      stroke-width="2"
+    />
 
     <ChartMarker
       v-for="m in markers"

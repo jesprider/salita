@@ -55,7 +55,11 @@ export const sampleState: HillChartState = {
         {
           id: 'task_1a',
           name: 'Wire up new auth flow',
-          source: { system: 'jira', id: 'MOB-205', url: 'https://example.atlassian.net/browse/MOB-205' },
+          source: {
+            system: 'jira',
+            id: 'MOB-205',
+            url: 'https://example.atlassian.net/browse/MOB-205',
+          },
           position: 12,
           lastMovedAt: '2026-05-24T10:00:00Z',
           forces: [

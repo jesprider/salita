@@ -41,9 +41,7 @@ const atPeak = computed(() => trackable.value?.position === 50)
     <div class="mb-6 flex items-start justify-between gap-3">
       <div class="min-w-0">
         <h2 class="font-heading text-xl leading-tight">{{ trackable.name }}</h2>
-        <span
-          class="mt-2 inline-block rounded-full bg-hill-sand px-2.5 py-0.5 text-xs capitalize"
-        >
+        <span class="mt-2 inline-block rounded-full bg-hill-sand px-2.5 py-0.5 text-xs capitalize">
           {{ kind }}
         </span>
       </div>
@@ -64,7 +62,8 @@ const atPeak = computed(() => trackable.value?.position === 50)
         rel="noopener noreferrer"
         class="text-terracotta underline-offset-2 hover:underline"
       >
-        {{ trackable.source.system ? `${trackable.source.system}:` : '' }}{{ trackable.source.id ?? trackable.source.url }}
+        {{ trackable.source.system ? `${trackable.source.system}:` : ''
+        }}{{ trackable.source.id ?? trackable.source.url }}
       </a>
     </p>
 
