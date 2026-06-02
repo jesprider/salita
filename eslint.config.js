@@ -8,10 +8,4 @@ export default [
   ...pluginVue.configs['flat/recommended'],
   ...vueTsEslintConfig(),
   skipFormatting,
-  // Dot.vue is a low-level SVG primitive component; single-word name is intentional.
-  {
-    name: 'app/dot-component-exception',
-    files: ['src/components/Dot.vue'],
-    rules: { 'vue/multi-word-component-names': 'off' },
-  },
 ]
