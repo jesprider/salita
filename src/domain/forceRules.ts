@@ -20,8 +20,7 @@ export function canCrossPeak(
   newPosition: number,
   currentPosition: number,
 ): boolean {
-  const crossingRightPastPeak =
-    newPosition > PEAK_POSITION && currentPosition <= PEAK_POSITION
+  const crossingRightPastPeak = newPosition > PEAK_POSITION && currentPosition <= PEAK_POSITION
   if (crossingRightPastPeak && hasActiveDownForces(forces)) {
     return false
   }
