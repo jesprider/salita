@@ -99,6 +99,11 @@ all store actions first” unless an iteration explicitly says store-only.
 editing → forces before import-heavy workflows → I/O before end-daily trail →
 visual rules and landing last.
 
+**Peak & blockers (amended 2026-06-03):** Crossing the peak no longer
+auto-resolves forces. Active down forces block drag past 50 (iteration 16).
+Adding or re-activating a down force while downhill snaps the dot to 45
+(iteration 6). See iteration 6 design doc and parent spec §2 (to be updated).
+
 ---
 
 ## Iteration details
@@ -170,20 +175,25 @@ details; no editing yet.
 
 ### Iteration 6 — Store: force mutations
 
-**Goal:** Pinia actions for force lifecycle; panel can stay read-only or show
-disabled controls — prefer keeping panel read-only and testing actions via unit
-tests only if that keeps the PR small.
+**Goal:** Pinia actions for force lifecycle; panel stays read-only — test via
+unit tests only.
+
+**Design doc:** `docs/superpowers/specs/2026-06-03-salita-iteration-6-store-force-mutations-design.md`
 
 **Deliverables:**
 
 - Actions: `addForce(trackableId, direction, label, owner?)`, `updateForce`,
-  `resolveForce`, `unresolveForce` (names flexible; behavior per parent spec §3).
+  `resolveForce(trackableId, forceId, reason?)`, `unresolveForce`.
 - Preserve `isPrimary` assignee rules (cannot resolve primary).
-- Vitest coverage on pure helpers or store actions.
+- **Blocker snap-back:** when a down force becomes active and `position > 50`,
+  set `position` to **45** and update `lastMovedAt` (`addForce` down,
+  `unresolveForce` down). Shared constants in `src/domain/forceRules.ts`.
+- Vitest coverage on `forceRules` helpers and store actions.
 
-**Out of scope:** Panel forms (iteration 7).
+**Out of scope:** Panel forms (iteration 7); peak drag clamp (iteration 16).
 
-**Likely touch:** `stores/hillChart.ts`, `stores/hillChart.test.ts`.
+**Likely touch:** `src/domain/forceRules.ts`, `stores/hillChart.ts`,
+`stores/hillChart.test.ts`.
 
 ---
 
@@ -195,10 +205,10 @@ tests only if that keeps the PR small.
 
 - `ForceChip.vue`, `ForceAddForm.vue` (inline label/owner; Enter save, Esc cancel).
 - Wire to iteration 6 actions; resolve ✓ on chips; unresolve from past sections.
-- **UI rule:** no `+ Down force` when dot `position > 50` (downhill); primary
-  force has no resolve button.
+- **`+ Down force` always available** — store snaps dot to 45 if downhill
+  (iteration 6); primary force has no resolve button.
 
-**Out of scope:** Peak **auto-resolve on drag** (iteration 16); name/position
+**Out of scope:** Peak drag clamp and panel hint (iteration 16); name/position
 edit (iteration 8).
 
 ---
@@ -320,15 +330,24 @@ edit (iteration 8).
 
 ### Iteration 16 — Peak crossing
 
-**Goal:** Business rule when dragging across the peak.
+**Goal:** Block entering the downhill while active blockers remain; surface why
+in the panel.
+
+**Replaces:** parent spec auto-resolve-on-cross (amended 2026-06-03).
 
 **Deliverables:**
 
-- In `setPosition`, when position crosses **50** going right: auto-resolve all
-  active forces with `resolutionReason: "reached peak"` (parent spec §2, §5.1
-  implication).
-- After on downhill: enforce no new down forces (should already be in panel UI
-  from iteration 7; verify on drag path).
+- In `setPosition`, when the new position would cross **50** going right and
+  the dot has **any active down force**, clamp to **50** (reuse
+  `PEAK_POSITION` / `canCrossPeak` from `forceRules.ts`).
+- Side panel: inline hint when dot is at the peak with active downs — *“Active
+  blockers must be resolved before moving downhill.”* (shown in position
+  section; iteration 8 slider inherits the same clamp).
+- Import/load: do not rewrite positions; guard applies on next drag or slider
+  edit only.
+
+**Already shipped in iteration 6:** adding/re-opening a down force while
+`position > 50` snaps to **45** (`BLOCKER_SNAP_POSITION`).
 
 ---
 
@@ -402,15 +421,18 @@ edit (iteration 8).
 | 1 | `docs/superpowers/specs/2026-05-27-salita-iteration-1-scaffold-hill-mechanic-design.md` |
 | 2 | `docs/superpowers/specs/2026-05-29-salita-iteration-2-project-view-tasks-design.md` |
 | 3 | `docs/superpowers/specs/2026-06-02-salita-iteration-3-persist-state-design.md` |
+| 6 | `docs/superpowers/specs/2026-06-03-salita-iteration-6-store-force-mutations-design.md` |
 
-*(Add rows here as iterations 4+ complete.)*
+*(Add rows here as iterations 4–5, 7+ complete.)*
 
 ---
 
-## Spec self-review (2026-06-02)
+## Spec self-review (2026-06-03)
 
 - No TBD placeholders in iteration scopes.
 - Order matches brainstorm: vertical slices, M1–M6 gates, team dry-run at M5.
 - Iteration 4 “stub header” matches user clarification (chrome only).
 - Click semantics: iteration 5 project-only click; iteration 9 unifies overview
   with panel drill — consistent with parent spec default.
+- Peak rule amended: iteration 6 snap-back + iteration 16 drag clamp replace
+  auto-resolve-on-cross; parent spec §2 still to be edited when convenient.
