@@ -1,11 +1,5 @@
 import { defineStore } from 'pinia'
-import type {
-  Force,
-  ForceDirection,
-  HillChartState,
-  HillTrackable,
-  Project,
-} from '../schema/types'
+import type { Force, ForceDirection, HillChartState, HillTrackable, Project } from '../schema/types'
 import { sampleState } from '../data/sample'
 import { snapIfDownhillWithBlockers } from '../domain/forceRules'
 import { HILL_CHART_STORAGE_KEY } from '../storage/loadState'
@@ -37,12 +31,7 @@ export const useHillChartStore = defineStore('hillChart', {
       trackable.lastMovedAt = new Date().toISOString()
     },
 
-    addForce(
-      trackableId: string,
-      direction: ForceDirection,
-      label: string,
-      owner?: string | null,
-    ) {
+    addForce(trackableId: string, direction: ForceDirection, label: string, owner?: string | null) {
       const trackable = findTrackableById(this.projects, trackableId)
       if (!trackable) return
 
