@@ -19,7 +19,8 @@ After this iteration:
 
 - **Docs (same branch, before or with implementation):** iteration 6 design doc,
   roadmap updates (iterations 6, 7, 16), and parent spec §2 peak-transition
-  amendment — all committed on `iteration-6-store-force-mutations`, not `main`.
+  amendment — all committed on `feature/iteration-6-store-force-mutations`, not
+  `main`.
 - The store exposes `addForce`, `updateForce`, `resolveForce`, and
   `unresolveForce` for any project or task dot (`trackableId`).
 - Primary assignee forces cannot be resolved.
@@ -137,7 +138,8 @@ Verify: `npm run test && npm run build`.
 - `src/stores/hillChart.ts`
 - `src/stores/hillChart.test.ts`
 
-**Branch:** `iteration-6-store-force-mutations` (off `main`; no direct commits to `main`).
+**Branch:** `feature/iteration-6-store-force-mutations` (per `AGENTS.md`; off
+`main`).
 
 ---
 

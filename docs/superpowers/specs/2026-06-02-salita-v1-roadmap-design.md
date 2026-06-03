@@ -20,7 +20,10 @@ whose status is `pending`** and work only that scope.
 4. Read the completed iteration specs for context:
    - `docs/superpowers/specs/2026-05-27-salita-iteration-1-scaffold-hill-mechanic-design.md`
    - `docs/superpowers/specs/2026-05-29-salita-iteration-2-project-view-tasks-design.md`
-5. Create a **new branch** (e.g. `iteration-3-persist-state`).
+5. Create a **new branch** off `main` — never commit on `main`. Name per
+   `AGENTS.md`: `feature/iteration-{N}-{slug}` (e.g.
+   `feature/iteration-3-persist-state`). Design-doc-only work may use
+   `docs/iteration-{N}-{slug}` when there is no code yet.
 6. Write a short iteration design doc:
    `docs/superpowers/specs/YYYY-MM-DD-salita-iteration-N-<slug>-design.md`
 7. Implement **only** that iteration’s deliverables; do not pull forward later
@@ -435,4 +438,6 @@ in the panel.
 - Click semantics: iteration 5 project-only click; iteration 9 unifies overview
   with panel drill — consistent with parent spec default.
 - Peak rule amended: iteration 6 snap-back + iteration 16 drag clamp replace
-  auto-resolve-on-cross; parent spec §2 still to be edited when convenient.
+  auto-resolve-on-cross; parent spec §2 updated 2026-06-03.
+- Branch names: `feature/iteration-{N}-{slug}` per `AGENTS.md` (legacy
+  `iteration-{N}-{slug}` without prefix = iterations 1–5 only).
