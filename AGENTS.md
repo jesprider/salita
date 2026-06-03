@@ -94,6 +94,7 @@ with concrete verification steps (commands run, UI paths checked, etc.).
 
 ## Commits
 
+- **Never on `main`** — always on a feature or iteration branch (see Branch names)
 - One logical change per commit when practical
 - Message focuses on **why**, not which tool wrote it
 - Follow existing repo style (imperative mood, no agent prefix)
