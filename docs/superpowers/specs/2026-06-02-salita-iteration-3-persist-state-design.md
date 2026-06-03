@@ -213,7 +213,8 @@ No changes to views, `HillChart`, or interaction code beyond bootstrap.
 
 ## 8. Delivery
 
-- Work on branch `iteration-3-persist-state`.
+- Work on branch `feature/iteration-3-persist-state` (legacy name without
+  prefix: `iteration-3-persist-state`).
 - Commits authored as Roman only — no Co-Authored-By / Claude mentions.
 - No PR opened by the agent unless the user asks.
 - Done when: drag survives refresh, invalid `localStorage` shows blocking error
