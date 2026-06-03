@@ -17,6 +17,9 @@ roadmap).
 
 After this iteration:
 
+- **Docs (same branch, before or with implementation):** iteration 6 design doc,
+  roadmap updates (iterations 6, 7, 16), and parent spec §2 peak-transition
+  amendment — all committed on `iteration-6-store-force-mutations`, not `main`.
 - The store exposes `addForce`, `updateForce`, `resolveForce`, and
   `unresolveForce` for any project or task dot (`trackableId`).
 - Primary assignee forces cannot be resolved.
@@ -119,12 +122,22 @@ Verify: `npm run test && npm run build`.
 
 ---
 
-## 6. Likely touch
+## 6. Deliverables & likely touch
+
+**Documentation (iteration 6 branch):**
+
+- `docs/superpowers/specs/2026-06-03-salita-iteration-6-store-force-mutations-design.md` (this file)
+- `docs/superpowers/specs/2026-06-02-salita-v1-roadmap-design.md` — iterations 6, 7, 16 peak rules
+- `docs/salita-design-spec.md` — §2 peak transition and checklist item 13
+
+**Implementation:**
 
 - `src/domain/forceRules.ts` (new)
 - `src/domain/forceRules.test.ts` (new)
 - `src/stores/hillChart.ts`
 - `src/stores/hillChart.test.ts`
+
+**Branch:** `iteration-6-store-force-mutations` (off `main`; no direct commits to `main`).
 
 ---
 
