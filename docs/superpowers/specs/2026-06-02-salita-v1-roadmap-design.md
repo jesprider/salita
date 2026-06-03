@@ -52,7 +52,7 @@ whose status is `pending`** and work only that scope.
 | 3 | persist-state | **done** | M1 |
 | 4 | overview-chrome | **done** | M1 |
 | 5 | side-panel-readonly | **done** | M2 |
-| 6 | store-force-mutations | **pending** | M2 |
+| 6 | store-force-mutations | **done** | M2 |
 | 7 | panel-force-ux | **pending** | M3 |
 | 8 | panel-dot-edits | **pending** | M3 |
 | 9 | overview-click-drill | **pending** | M3 |
