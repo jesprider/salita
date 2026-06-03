@@ -30,7 +30,12 @@ Project and task dots are positioned **independently and manually**. No automati
 
 Forces are **context for the conversation**, not physics. They don't move the dot — the manager drags. But they make imbalance visible at a glance.
 
-**Peak transition.** When a dot crosses position 50 going right, all active forces auto-resolve (with reason "reached peak") and move to past blockers/boosters. No new forces can be added while a dot is on the downhill.
+**Peak transition.** The peak is at position 50. A dot cannot move **past** the
+peak (into the downhill, position > 50) while it has **active down forces** —
+drag and slider clamp at 50 until blockers are resolved. Adding or re-opening a
+down force while already downhill snaps the dot back to **45** (just before the
+peak). No new down forces are blocked outright; the chart reflects renewed
+uncertainty instead.
 
 **Done.** Position 100 = done. Done dots remain on the chart at 100 (no archival). They can be dragged back if a problem surfaces. To keep the right side readable, done dots **stack into a collapsed column** at the bottom-right with a "+ N more" badge; click to expand into a list.
 
@@ -472,7 +477,7 @@ Captured during the design interview so future-you can see the reasoning:
 10. Storage: `localStorage` via `pinia-plugin-persistedstate`.
 11. No incremental import; lifecycle is Import → Export → (skill edits) → Clean → Import.
 12. JSON schema is nested (tasks inside projects).
-13. Crossing the peak auto-resolves forces; downhill = no new forces.
+13. Crossing the peak blocked while active down forces remain; new/reopened downs on downhill snap to 45.
 14. Done dots stay at 100; can be dragged back; stack into a column on the right.
 15. Snapshot trigger = explicit "End daily" button.
 16. Force display = `↑/↓` badge counts on the dot + side panel on click.
