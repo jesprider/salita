@@ -50,6 +50,23 @@ chore/bump-vitest
 
 Create branches from an up-to-date `main`.
 
+**Hard rule:** Never commit directly to `main`. Before any commit, confirm the
+current branch is not `main` (`git branch --show-current`). Create and check out
+a branch first. Applies to code, docs, and spec changes.
+
+**Salita roadmap iterations** use `{type}` = `feature` and embed the iteration
+number in the slug (see `docs/superpowers/specs/2026-06-02-salita-v1-roadmap-design.md`):
+
+```
+feature/iteration-{N}-{slug}
+```
+
+Examples: `feature/iteration-3-persist-state`, `feature/iteration-6-store-force-mutations`.
+Use `docs/…` only when the branch contains **no** implementation (spec-only PR).
+
+Older branches named `iteration-{N}-{slug}` without a type prefix (iterations 1–5)
+are legacy; do not create new ones.
+
 ---
 
 ## Pull requests
@@ -94,7 +111,7 @@ with concrete verification steps (commands run, UI paths checked, etc.).
 
 ## Commits
 
-- **Never on `main`** — always on a feature or iteration branch (see Branch names)
+- **Never on `main`** — always on a typed branch (see Branch names)
 - One logical change per commit when practical
 - Message focuses on **why**, not which tool wrote it
 - Follow existing repo style (imperative mood, no agent prefix)
