@@ -66,6 +66,9 @@ export const useHillChartStore = defineStore('hillChart', {
       const project = this.projects.find((p) => p.id === projectId)
       if (!project) return ''
 
+      const projectPrimaryOwner =
+        project.forces.find((f) => f.isPrimary && f.direction === 'up')?.owner ?? null
+
       const now = new Date().toISOString()
       const id = `task_${crypto.randomUUID()}`
       const task: Task = {
@@ -78,7 +81,7 @@ export const useHillChartStore = defineStore('hillChart', {
             id: `f_${crypto.randomUUID()}`,
             direction: 'up',
             label: 'Owner',
-            owner: null,
+            owner: projectPrimaryOwner,
             isPrimary: true,
             status: 'active',
             createdAt: now,
