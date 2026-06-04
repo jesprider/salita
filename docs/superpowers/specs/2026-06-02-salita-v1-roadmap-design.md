@@ -56,7 +56,7 @@ whose status is `pending`** and work only that scope.
 | 7 | panel-force-ux | **done** | M3 |
 | 8 | panel-dot-edits | **done** | M3 |
 | 9 | overview-click-drill | **done** | M3 |
-| 10 | add-project | **pending** | M4 |
+| 10 | add-project | **done** | M4 |
 | 11 | add-task | **pending** | M4 |
 | 12 | import | **pending** | M4 |
 | 13 | export-clean | **pending** | M4 |
@@ -430,6 +430,7 @@ in the panel.
 | 7 | `docs/superpowers/specs/2026-06-04-salita-iteration-7-panel-force-ux-design.md` |
 | 8 | `docs/superpowers/specs/2026-06-04-salita-iteration-8-panel-dot-edits-design.md` |
 | 9 | `docs/superpowers/specs/2026-06-04-salita-iteration-9-overview-click-drill-design.md` |
+| 10 | `docs/superpowers/specs/2026-06-04-salita-iteration-10-add-project-design.md` |
 
 *(Add rows here as iterations 4–5 complete.)*
 
