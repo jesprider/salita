@@ -146,14 +146,42 @@ with concrete verification steps (commands run, UI paths checked, etc.).
 ## Before opening a PR
 
 1. Branch and PR title follow the patterns above
-2. Local checks pass:
+2. **Everything intended for the PR is committed** on the branch (see [Commits on the branch](#commits-on-the-branch) below)
+3. Local checks pass:
 
    ```bash
    npm run lint && npm run format:check && npm run test && npm run build
    ```
 
-3. PR description uses the template with no agent identity and **no tool footers**
+4. PR description uses the template with no agent identity and **no tool footers**
    (e.g. no "Made with Cursor")
 
 See `docs/superpowers/specs/2026-06-02-ci-pipeline-design.md` for CI details once
 the workflow is merged.
+
+### Commits on the branch
+
+A PR must include the **full feature or fix** for that branch — not only docs or
+an earlier commit while implementation stays uncommitted locally.
+
+Before `git push` and `gh pr create`:
+
+1. Run `git status`. If there are unstaged or uncommitted changes that belong in
+   this PR, **commit them first** (unless the user explicitly asked you not to commit
+   at all in this session).
+2. Push the branch, then open the PR from what is on the remote branch.
+
+### “Do not create new commits” (push / PR workflows)
+
+Some automated or one-shot instructions say **do not stage, unstage, or create new
+commits** while opening a PR. That means:
+
+- **Do not** make extra, drive-by, or duplicate commits while running push/PR steps.
+- **Do not** re-stage or rewrite history unless the user asked for that.
+- **Do not** interpret this as “leave the feature uncommitted and open the PR anyway.”
+
+If the feature code is still only in the working tree, **stop**: commit the work
+(or ask the user to approve a commit), then push and open the PR.
+
+To require the full feature in the PR, either omit the “no new commits” restriction
+or say explicitly: **commit and push first, then open the PR**.
