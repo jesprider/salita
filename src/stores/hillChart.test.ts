@@ -48,7 +48,7 @@ describe('hillChart store', () => {
     it('sets and clears source', () => {
       const store = useHillChartStore()
       store.updateTrackable('proj_1', {
-        source: { url: 'https://github.com/a/b/issues/1', system: 'github', id: 'a/b#1' },
+        source: { url: 'https://github.com/a/b/issues/1', system: 'github' },
       })
       expect(store.projects[0].source?.system).toBe('github')
 

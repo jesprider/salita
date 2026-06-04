@@ -17,65 +17,30 @@ function tryParseUrl(raw: string): URL | null {
   }
 }
 
+function detectSystem(hostname: string): string | undefined {
+  const host = hostname.toLowerCase()
+  if (host.endsWith('.atlassian.net')) return 'jira'
+  if (host === 'linear.app' || host.endsWith('.linear.app')) return 'linear'
+  if (host === 'github.com') return 'github'
+  if (host === 'gitlab.com' || host.includes('gitlab')) return 'gitlab'
+  if (host === 'app.asana.com') return 'asana'
+  if (host === 'app.clickup.com') return 'clickup'
+  if (host.endsWith('.monday.com')) return 'monday'
+  if (host === 'trello.com') return 'trello'
+  return undefined
+}
+
 /**
- * Parse a tracker URL into a Source object. Empty/whitespace-only input is invalid
- * (use null source on save when clearing the link field).
+ * Parse a user-entered URL: validate http(s), normalize href, infer tracker
+ * system from hostname for the side-panel icon. Does not validate path shape.
  */
 export function parseSourceUrl(raw: string): ParseSourceUrlResult {
   const url = tryParseUrl(raw)
   if (!url) return 'invalid'
 
   const href = url.href
-  const host = url.hostname.toLowerCase()
-  const path = url.pathname
-
-  const jiraMatch =
-    host.endsWith('.atlassian.net') && path.match(/^\/browse\/([A-Z][A-Z0-9]+-\d+)/i)
-  if (jiraMatch) {
-    return { url: href, system: 'jira', id: jiraMatch[1].toUpperCase() }
-  }
-
-  if (host === 'linear.app' || host.endsWith('.linear.app')) {
-    const linearMatch = path.match(/\/issue\/([^/]+)/)
-    if (linearMatch) {
-      return { url: href, system: 'linear', id: linearMatch[1] }
-    }
-  }
-
-  if (host === 'github.com') {
-    const ghMatch = path.match(/^\/([^/]+)\/([^/]+)\/issues\/(\d+)/)
-    if (ghMatch) {
-      return { url: href, system: 'github', id: `${ghMatch[1]}/${ghMatch[2]}#${ghMatch[3]}` }
-    }
-  }
-
-  const gitlabMatch = path.match(/\/-\/issues\/(\d+)/)
-  if (gitlabMatch) {
-    return { url: href, system: 'gitlab', id: gitlabMatch[1] }
-  }
-
-  if (host === 'app.asana.com') {
-    const segments = path.split('/').filter(Boolean)
-    const id = segments[segments.length - 1] ?? path
-    return { url: href, system: 'asana', id }
-  }
-
-  if (host === 'app.clickup.com') {
-    const segments = path.split('/').filter(Boolean)
-    const id = segments[segments.length - 1] ?? path
-    return { url: href, system: 'clickup', id }
-  }
-
-  if (host.endsWith('.monday.com')) {
-    return { url: href, system: 'monday', id: path }
-  }
-
-  const trelloMatch = host === 'trello.com' && path.match(/^\/c\/([a-zA-Z0-9]+)/)
-  if (trelloMatch) {
-    return { url: href, system: 'trello', id: trelloMatch[1] }
-  }
-
-  return { url: href }
+  const system = detectSystem(url.hostname)
+  return system ? { url: href, system } : { url: href }
 }
 
 export function sourceOpenLabel(system?: string): string {
