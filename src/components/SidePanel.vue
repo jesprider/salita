@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import type { ForceDirection, Project } from '../schema/types'
 import { forcesByStatus, lookupInProject } from '../composables/trackableLookup'
 import { parseSourceUrl, sourceOpenLabel } from '../domain/parseSourceUrl'
@@ -11,13 +12,19 @@ import SourceSystemIcon from './SourceSystemIcon.vue'
 const props = defineProps<{
   project: Project
   trackableId: string
+  showOpenProject?: boolean
 }>()
 
 defineEmits<{
   (e: 'close'): void
 }>()
 
+const router = useRouter()
 const store = useHillChartStore()
+
+function openProjectView() {
+  router.push(`/projects/${props.project.id}`)
+}
 const editingForceId = ref<string | null>(null)
 const addingDirection = ref<ForceDirection | null>(null)
 const editingHeader = ref(false)
@@ -216,6 +223,15 @@ function onAddSave(direction: ForceDirection, payload: { label: string; owner: s
         <span class="mt-2 inline-block rounded-full bg-hill-sand px-2.5 py-0.5 text-xs capitalize">
           {{ kind }}
         </span>
+        <button
+          v-if="showOpenProject && kind === 'project'"
+          type="button"
+          class="mt-3 text-sm font-medium text-terracotta hover:underline"
+          aria-label="Open project view"
+          @click="openProjectView"
+        >
+          Open project →
+        </button>
       </div>
       <button
         type="button"
