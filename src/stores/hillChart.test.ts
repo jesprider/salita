@@ -104,11 +104,21 @@ describe('hillChart store', () => {
       const owner = created.forces[0]
       expect(owner.direction).toBe('up')
       expect(owner.label).toBe('Owner')
-      expect(owner.owner).toBeNull()
+      expect(owner.owner).toBe('Alex')
       expect(owner.isPrimary).toBe(true)
       expect(owner.status).toBe('active')
       expect(owner.id).toMatch(/^f_/)
       expect(owner.resolvedAt).toBeNull()
+    })
+
+    it('inherits null when project Owner has no owner', () => {
+      const store = useHillChartStore()
+      const projectId = store.addProject()
+      const project = store.projects.find((p) => p.id === projectId)!
+
+      store.addTask(projectId)
+
+      expect(project.tasks[0].forces[0].owner).toBeNull()
     })
 
     it('returns empty string for unknown projectId', () => {
