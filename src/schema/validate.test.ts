@@ -1,6 +1,12 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
 import { MINIMAL_IMPORT_JSON } from './testFixtures'
 import { validateHillChartJson } from './validate'
+
+const repoRoot = join(fileURLToPath(new URL('.', import.meta.url)), '../..')
+const IMPORT_DEMO_PATH = join(repoRoot, 'fixtures/hill-chart-import-demo.json')
 
 describe('validateHillChartJson', () => {
   it('accepts minimal skill-shaped JSON', () => {
@@ -68,5 +74,14 @@ describe('validateHillChartJson', () => {
     bad.version = 2
     const r = validateHillChartJson(JSON.stringify(bad))
     expect(r.ok).toBe(false)
+  })
+
+  it('accepts fixtures/hill-chart-import-demo.json', () => {
+    const raw = readFileSync(IMPORT_DEMO_PATH, 'utf8')
+    const r = validateHillChartJson(raw)
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.state.projects).toHaveLength(2)
+    expect(r.state.projects[0].name).toBe('Platform API migration')
   })
 })
