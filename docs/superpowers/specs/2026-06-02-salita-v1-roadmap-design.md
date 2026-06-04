@@ -57,7 +57,7 @@ whose status is `pending`** and work only that scope.
 | 8 | panel-dot-edits | **done** | M3 |
 | 9 | overview-click-drill | **done** | M3 |
 | 10 | add-project | **done** | M4 |
-| 11 | add-task | **pending** | M4 |
+| 11 | add-task | **done** | M4 |
 | 12 | import | **pending** | M4 |
 | 13 | export-clean | **pending** | M4 |
 | 14 | end-daily | **pending** | M5 |
@@ -271,8 +271,8 @@ edit (iteration 8).
 
 **Deliverables:**
 
-- Modal (same shape as project).
-- `addTask(projectId, …)` on store.
+- Side panel create (no modal): `addTask(projectId, …)` on store; auto-select new
+  task in panel for name, link, position, and forces (same pattern as iteration 10).
 - **+ Task** in project view header (parent spec §4.3).
 
 ---
@@ -431,6 +431,7 @@ in the panel.
 | 8 | `docs/superpowers/specs/2026-06-04-salita-iteration-8-panel-dot-edits-design.md` |
 | 9 | `docs/superpowers/specs/2026-06-04-salita-iteration-9-overview-click-drill-design.md` |
 | 10 | `docs/superpowers/specs/2026-06-04-salita-iteration-10-add-project-design.md` |
+| 11 | `docs/superpowers/specs/2026-06-04-salita-iteration-11-add-task-design.md` |
 
 *(Add rows here as iterations 4–5 complete.)*
 
