@@ -74,6 +74,56 @@ describe('hillChart store', () => {
     })
   })
 
+  describe('addTask', () => {
+    it('appends a task with defaults and returns its id', () => {
+      const store = useHillChartStore()
+      const project = store.projects[0]
+      const before = project.tasks.length
+
+      const id = store.addTask(project.id)
+
+      expect(id).toMatch(/^task_/)
+      expect(project.tasks.length).toBe(before + 1)
+      const created = project.tasks.find((t) => t.id === id)
+      expect(created).toBeDefined()
+      expect(created!.name).toBe('New task')
+      expect(created!.position).toBe(0)
+      expect(created!.snapshots).toEqual([])
+      expect(created!.source).toBeUndefined()
+      expect(Date.now() - new Date(created!.lastMovedAt).getTime()).toBeLessThan(5000)
+    })
+
+    it('creates exactly one primary Owner up force', () => {
+      const store = useHillChartStore()
+      const project = store.projects[0]
+
+      store.addTask(project.id)
+
+      const created = project.tasks[project.tasks.length - 1]
+      expect(created.forces).toHaveLength(1)
+      const owner = created.forces[0]
+      expect(owner.direction).toBe('up')
+      expect(owner.label).toBe('Owner')
+      expect(owner.owner).toBeNull()
+      expect(owner.isPrimary).toBe(true)
+      expect(owner.status).toBe('active')
+      expect(owner.id).toMatch(/^f_/)
+      expect(owner.resolvedAt).toBeNull()
+    })
+
+    it('returns empty string for unknown projectId', () => {
+      const store = useHillChartStore()
+      const counts = store.projects.map((p) => p.tasks.length)
+
+      const id = store.addTask('nope')
+
+      expect(id).toBe('')
+      store.projects.forEach((p, i) => {
+        expect(p.tasks.length).toBe(counts[i])
+      })
+    })
+  })
+
   it('setPosition updates a project position and lastMovedAt', () => {
     const store = useHillChartStore()
     const before = store.projects[0].lastMovedAt
