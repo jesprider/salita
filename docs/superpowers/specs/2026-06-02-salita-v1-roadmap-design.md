@@ -58,7 +58,7 @@ whose status is `pending`** and work only that scope.
 | 9 | overview-click-drill | **done** | M3 |
 | 10 | add-project | **done** | M4 |
 | 11 | add-task | **done** | M4 |
-| 12 | import | **pending** | M4 |
+| 12 | import | **done** | M4 |
 | 13 | export-clean | **pending** | M4 |
 | 14 | end-daily | **pending** | M5 |
 | 15 | trail-on-chart | **pending** | M5 |
@@ -432,6 +432,7 @@ in the panel.
 | 9 | `docs/superpowers/specs/2026-06-04-salita-iteration-9-overview-click-drill-design.md` |
 | 10 | `docs/superpowers/specs/2026-06-04-salita-iteration-10-add-project-design.md` |
 | 11 | `docs/superpowers/specs/2026-06-04-salita-iteration-11-add-task-design.md` |
+| 12 | `docs/superpowers/specs/2026-06-04-salita-iteration-12-import-design.md` |
 
 *(Add rows here as iterations 4–5 complete.)*
 

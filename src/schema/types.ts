@@ -54,5 +54,6 @@ export interface Project extends HillTrackable {
 export interface HillChartState {
   version: number
   exportedAt: string | null
+  demo: boolean
   projects: Project[]
 }

@@ -1,7 +1,7 @@
 # Salita — Iteration 12: Import (design)
 
 **Date:** 2026-06-04  
-**Status:** Approved  
+**Status:** Implemented  
 **Parent spec:** `docs/salita-design-spec.md` (§4.2, §5.4)  
 **Roadmap:** `docs/superpowers/specs/2026-06-02-salita-v1-roadmap-design.md` (iteration 12)  
 **Builds on:** iteration 3 (persist + `loadState`), iteration 4 (header stubs),

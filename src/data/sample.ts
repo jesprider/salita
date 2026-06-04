@@ -3,6 +3,7 @@ import type { HillChartState } from '../schema/types'
 export const sampleState: HillChartState = {
   version: 1,
   exportedAt: null,
+  demo: true,
   projects: [
     {
       id: 'proj_1',
