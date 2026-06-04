@@ -9,6 +9,7 @@ import type {
 } from '../schema/types'
 import { sampleState } from '../data/sample'
 import { snapIfDownhillWithBlockers } from '../domain/forceRules'
+import { PALETTE_ORDER } from '../schema/palette'
 import { HILL_CHART_STORAGE_KEY } from '../storage/loadState'
 
 function findTrackableById(projects: Project[], id: string): HillTrackable | undefined {
@@ -31,6 +32,35 @@ export const useHillChartStore = defineStore('hillChart', {
     key: HILL_CHART_STORAGE_KEY,
   },
   actions: {
+    addProject(): string {
+      const now = new Date().toISOString()
+      const id = `proj_${crypto.randomUUID()}`
+      const project: Project = {
+        id,
+        name: 'New project',
+        color: PALETTE_ORDER[this.projects.length % PALETTE_ORDER.length],
+        position: 0,
+        lastMovedAt: now,
+        forces: [
+          {
+            id: `f_${crypto.randomUUID()}`,
+            direction: 'up',
+            label: 'Owner',
+            owner: null,
+            isPrimary: true,
+            status: 'active',
+            createdAt: now,
+            resolvedAt: null,
+            resolutionReason: null,
+          },
+        ],
+        snapshots: [],
+        tasks: [],
+      }
+      this.projects.push(project)
+      return id
+    },
+
     setPosition(id: string, position: number) {
       const trackable = findTrackableById(this.projects, id)
       if (!trackable) return
