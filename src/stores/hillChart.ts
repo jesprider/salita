@@ -6,6 +6,7 @@ import type {
   HillTrackable,
   Project,
   Source,
+  Task,
 } from '../schema/types'
 import { sampleState } from '../data/sample'
 import { snapIfDownhillWithBlockers } from '../domain/forceRules'
@@ -58,6 +59,36 @@ export const useHillChartStore = defineStore('hillChart', {
         tasks: [],
       }
       this.projects.push(project)
+      return id
+    },
+
+    addTask(projectId: string): string {
+      const project = this.projects.find((p) => p.id === projectId)
+      if (!project) return ''
+
+      const now = new Date().toISOString()
+      const id = `task_${crypto.randomUUID()}`
+      const task: Task = {
+        id,
+        name: 'New task',
+        position: 0,
+        lastMovedAt: now,
+        forces: [
+          {
+            id: `f_${crypto.randomUUID()}`,
+            direction: 'up',
+            label: 'Owner',
+            owner: null,
+            isPrimary: true,
+            status: 'active',
+            createdAt: now,
+            resolvedAt: null,
+            resolutionReason: null,
+          },
+        ],
+        snapshots: [],
+      }
+      project.tasks.push(task)
       return id
     },
 
