@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Project } from '../schema/types'
+import { computed, ref, watch } from 'vue'
+import type { ForceDirection, Project } from '../schema/types'
 import { forcesByStatus, lookupInProject } from '../composables/trackableLookup'
+import { useHillChartStore } from '../stores/hillChart'
+import ForceAddForm from './ForceAddForm.vue'
+import ForceChip from './ForceChip.vue'
 
 const props = defineProps<{
   project: Project
@@ -11,6 +14,18 @@ const props = defineProps<{
 defineEmits<{
   (e: 'close'): void
 }>()
+
+const store = useHillChartStore()
+const editingForceId = ref<string | null>(null)
+const addingDirection = ref<ForceDirection | null>(null)
+
+watch(
+  () => props.trackableId,
+  () => {
+    editingForceId.value = null
+    addingDirection.value = null
+  },
+)
 
 const lookup = computed(() => lookupInProject(props.project, props.trackableId))
 const trackable = computed(() => lookup.value?.trackable ?? null)
@@ -30,6 +45,42 @@ const pastDown = computed(() =>
 )
 
 const atPeak = computed(() => trackable.value?.position === 50)
+
+function startEdit(forceId: string) {
+  addingDirection.value = null
+  editingForceId.value = forceId
+}
+
+function cancelEdit() {
+  editingForceId.value = null
+}
+
+function onSaveEdit(forceId: string, payload: { label: string; owner: string | null }) {
+  store.updateForce(props.trackableId, forceId, payload)
+  editingForceId.value = null
+}
+
+function onResolve(forceId: string) {
+  store.resolveForce(props.trackableId, forceId)
+}
+
+function onUnresolve(forceId: string) {
+  store.unresolveForce(props.trackableId, forceId)
+}
+
+function startAdd(direction: ForceDirection) {
+  editingForceId.value = null
+  addingDirection.value = direction
+}
+
+function cancelAdd() {
+  addingDirection.value = null
+}
+
+function onAddSave(direction: ForceDirection, payload: { label: string; owner: string | null }) {
+  store.addForce(props.trackableId, direction, payload.label, payload.owner)
+  addingDirection.value = null
+}
 </script>
 
 <template>
@@ -77,63 +128,102 @@ const atPeak = computed(() => trackable.value?.position === 50)
       <h3 class="mb-2 text-xs font-medium tracking-wide text-text-warm/60 uppercase">
         Active up forces
       </h3>
-      <ul v-if="activeUp.length" class="space-y-2">
-        <li
+      <ul class="space-y-2">
+        <ForceChip
           v-for="force in activeUp"
           :key="force.id"
-          class="rounded-full bg-hill-sand/70 px-3 py-1.5 text-sm"
-        >
-          {{ force.label }}
-          <span v-if="force.owner" class="text-text-warm/70"> · {{ force.owner }}</span>
-          <span v-if="force.isPrimary" class="ml-1 text-xs text-text-warm/60">(primary)</span>
-        </li>
+          :force="force"
+          variant="active"
+          :is-editing="editingForceId === force.id"
+          @edit-start="startEdit(force.id)"
+          @save="onSaveEdit(force.id, $event)"
+          @cancel="cancelEdit"
+          @resolve="onResolve(force.id)"
+        />
+        <ForceAddForm
+          v-if="addingDirection === 'up'"
+          @save="onAddSave('up', $event)"
+          @cancel="cancelAdd"
+        />
       </ul>
-      <p v-else class="text-sm text-text-warm/50">None</p>
+      <p v-if="!activeUp.length && addingDirection !== 'up'" class="mb-2 text-sm text-text-warm/50">
+        None
+      </p>
+      <button
+        v-if="addingDirection !== 'up'"
+        type="button"
+        class="mt-2 text-sm text-terracotta hover:underline"
+        aria-label="Add up force"
+        @click="startAdd('up')"
+      >
+        + Up force
+      </button>
     </section>
 
     <section class="mb-6">
       <h3 class="mb-2 text-xs font-medium tracking-wide text-text-warm/60 uppercase">
         Active down forces
       </h3>
-      <ul v-if="activeDown.length" class="space-y-2">
-        <li
+      <ul class="space-y-2">
+        <ForceChip
           v-for="force in activeDown"
           :key="force.id"
-          class="rounded-full bg-hill-sand/70 px-3 py-1.5 text-sm"
-        >
-          {{ force.label }}
-          <span v-if="force.owner" class="text-text-warm/70"> · {{ force.owner }}</span>
-          <span v-if="force.isPrimary" class="ml-1 text-xs text-text-warm/60">(primary)</span>
-        </li>
+          :force="force"
+          variant="active"
+          :is-editing="editingForceId === force.id"
+          @edit-start="startEdit(force.id)"
+          @save="onSaveEdit(force.id, $event)"
+          @cancel="cancelEdit"
+          @resolve="onResolve(force.id)"
+        />
+        <ForceAddForm
+          v-if="addingDirection === 'down'"
+          @save="onAddSave('down', $event)"
+          @cancel="cancelAdd"
+        />
       </ul>
-      <p v-else class="text-sm text-text-warm/50">None</p>
+      <p
+        v-if="!activeDown.length && addingDirection !== 'down'"
+        class="mb-2 text-sm text-text-warm/50"
+      >
+        None
+      </p>
+      <button
+        v-if="addingDirection !== 'down'"
+        type="button"
+        class="mt-2 text-sm text-terracotta hover:underline"
+        aria-label="Add down force"
+        @click="startAdd('down')"
+      >
+        + Down force
+      </button>
     </section>
 
     <details v-if="pastUp.length" class="mb-4">
       <summary class="cursor-pointer text-sm font-medium">Past boosters</summary>
       <ul class="mt-2 space-y-2">
-        <li
+        <ForceChip
           v-for="force in pastUp"
           :key="force.id"
-          class="rounded-full bg-hill-sand/40 px-3 py-1.5 text-sm text-text-warm/70"
-        >
-          {{ force.label }}
-          <span v-if="force.owner"> · {{ force.owner }}</span>
-        </li>
+          :force="force"
+          variant="past"
+          :is-editing="false"
+          @unresolve="onUnresolve(force.id)"
+        />
       </ul>
     </details>
 
     <details v-if="pastDown.length">
       <summary class="cursor-pointer text-sm font-medium">Past blockers</summary>
       <ul class="mt-2 space-y-2">
-        <li
+        <ForceChip
           v-for="force in pastDown"
           :key="force.id"
-          class="rounded-full bg-hill-sand/40 px-3 py-1.5 text-sm text-text-warm/70"
-        >
-          {{ force.label }}
-          <span v-if="force.owner"> · {{ force.owner }}</span>
-        </li>
+          :force="force"
+          variant="past"
+          :is-editing="false"
+          @unresolve="onUnresolve(force.id)"
+        />
       </ul>
     </details>
   </aside>
