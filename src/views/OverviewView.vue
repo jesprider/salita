@@ -39,10 +39,15 @@ function onOpen(id: string) {
 function onTrackableClick(id: string) {
   selectedTrackableId.value = selectedTrackableId.value === id ? null : id
 }
+
+function onAddProject() {
+  const id = store.addProject()
+  selectedTrackableId.value = id
+}
 </script>
 
 <template>
-  <AppHeader />
+  <AppHeader @add-project="onAddProject" />
   <section class="px-6 py-6">
     <div class="mx-auto flex max-w-[1400px] items-start gap-6">
       <div class="min-w-0 flex-1">
