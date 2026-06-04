@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { BLOCKER_SNAP_POSITION } from '../domain/forceRules'
+import { canImport } from '../schema/importRules'
 import { PALETTE_ORDER } from '../schema/palette'
+import { MINIMAL_IMPORT_JSON } from '../schema/testFixtures'
+import { validateHillChartJson } from '../schema/validate'
 import { useHillChartStore } from './hillChart'
 
 describe('hillChart store', () => {
@@ -13,6 +16,7 @@ describe('hillChart store', () => {
     const store = useHillChartStore()
     expect(store.projects.length).toBe(4)
     expect(store.projects[0].id).toBe('proj_1')
+    expect(store.demo).toBe(true)
   })
 
   describe('addProject', () => {
@@ -281,6 +285,50 @@ describe('hillChart store', () => {
       }).not.toThrow()
 
       expect(store.projects[0].forces.length).toBe(count + 1)
+    })
+  })
+
+  describe('demo flag', () => {
+    it('setPosition does not clear demo', () => {
+      const store = useHillChartStore()
+      store.setPosition('proj_1', 40)
+      expect(store.demo).toBe(true)
+    })
+  })
+
+  describe('importState', () => {
+    it('replaces projects and sets demo false when canImport', () => {
+      const store = useHillChartStore()
+      const parsed = validateHillChartJson(MINIMAL_IMPORT_JSON)
+      expect(parsed.ok).toBe(true)
+      if (!parsed.ok) return
+
+      store.importState(parsed.state)
+
+      expect(store.demo).toBe(false)
+      expect(store.projects).toHaveLength(1)
+      expect(store.projects[0].id).toBe('proj_import_1')
+      expect(canImport(store.$state)).toBe(false)
+    })
+
+    it('no-ops when demo false and projects exist', () => {
+      const store = useHillChartStore()
+      store.demo = false
+      const beforeId = store.projects[0].id
+      const parsed = validateHillChartJson(MINIMAL_IMPORT_JSON)
+      if (!parsed.ok) throw new Error('fixture')
+      store.importState(parsed.state)
+      expect(store.projects[0].id).toBe(beforeId)
+    })
+
+    it('imports when projects empty even if demo false', () => {
+      const store = useHillChartStore()
+      store.demo = false
+      store.projects = []
+      const parsed = validateHillChartJson(MINIMAL_IMPORT_JSON)
+      if (!parsed.ok) throw new Error('fixture')
+      store.importState(parsed.state)
+      expect(store.projects).toHaveLength(1)
     })
   })
 })
