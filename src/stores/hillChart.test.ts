@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { BLOCKER_SNAP_POSITION } from '../domain/forceRules'
+import { PALETTE_ORDER } from '../schema/palette'
 import { useHillChartStore } from './hillChart'
 
 describe('hillChart store', () => {
@@ -12,6 +13,65 @@ describe('hillChart store', () => {
     const store = useHillChartStore()
     expect(store.projects.length).toBe(4)
     expect(store.projects[0].id).toBe('proj_1')
+  })
+
+  describe('addProject', () => {
+    it('appends a project with defaults and returns its id', () => {
+      const store = useHillChartStore()
+      const before = store.projects.length
+
+      const id = store.addProject()
+
+      expect(store.projects.length).toBe(before + 1)
+      const created = store.projects.find((p) => p.id === id)
+      expect(created).toBeDefined()
+      expect(id).toMatch(/^proj_/)
+      expect(created!.name).toBe('New project')
+      expect(created!.position).toBe(0)
+      expect(created!.tasks).toEqual([])
+      expect(created!.snapshots).toEqual([])
+      expect(created!.source).toBeUndefined()
+      expect(Date.now() - new Date(created!.lastMovedAt).getTime()).toBeLessThan(5000)
+    })
+
+    it('assigns color from PALETTE_ORDER by index before push', () => {
+      const store = useHillChartStore()
+      const index = store.projects.length
+
+      store.addProject()
+
+      const created = store.projects[store.projects.length - 1]
+      expect(created.color).toBe(PALETTE_ORDER[index % PALETTE_ORDER.length])
+    })
+
+    it('creates exactly one primary Owner up force', () => {
+      const store = useHillChartStore()
+
+      store.addProject()
+
+      const created = store.projects[store.projects.length - 1]
+      expect(created.forces).toHaveLength(1)
+      const owner = created.forces[0]
+      expect(owner.direction).toBe('up')
+      expect(owner.label).toBe('Owner')
+      expect(owner.owner).toBeNull()
+      expect(owner.isPrimary).toBe(true)
+      expect(owner.status).toBe('active')
+      expect(owner.id).toMatch(/^f_/)
+      expect(owner.resolvedAt).toBeNull()
+    })
+
+    it('wraps color after eight projects', () => {
+      const store = useHillChartStore()
+      store.projects = []
+
+      for (let i = 0; i < 9; i++) {
+        store.addProject()
+      }
+
+      expect(store.projects[0].color).toBe('terracotta')
+      expect(store.projects[8].color).toBe('terracotta')
+    })
   })
 
   it('setPosition updates a project position and lastMovedAt', () => {
