@@ -38,6 +38,34 @@ describe('hillChart store', () => {
     expect(() => store.setPosition('nope', 10)).not.toThrow()
   })
 
+  describe('updateTrackable', () => {
+    it('renames a project', () => {
+      const store = useHillChartStore()
+      store.updateTrackable('proj_1', { name: '  Renamed  ' })
+      expect(store.projects[0].name).toBe('Renamed')
+    })
+
+    it('sets and clears source', () => {
+      const store = useHillChartStore()
+      store.updateTrackable('proj_1', {
+        source: { url: 'https://github.com/a/b/issues/1', system: 'github', id: 'a/b#1' },
+      })
+      expect(store.projects[0].source?.system).toBe('github')
+
+      store.updateTrackable('proj_1', { source: null })
+      expect(store.projects[0].source).toBeUndefined()
+    })
+
+    it('rejects empty name and no-ops unknown id', () => {
+      const store = useHillChartStore()
+      const before = store.projects[0].name
+      store.updateTrackable('proj_1', { name: '   ' })
+      expect(store.projects[0].name).toBe(before)
+
+      expect(() => store.updateTrackable('nope', { name: 'X' })).not.toThrow()
+    })
+  })
+
   describe('force mutations', () => {
     it('addForce up at position 70 keeps position', () => {
       const store = useHillChartStore()
