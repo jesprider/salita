@@ -40,7 +40,7 @@ overview changes; auto-enter name edit on create; `addProject` changes.
 | Placeholder name | `"New task"` until user renames in panel |
 | Accidental create | No discard in v11; delete when iteration 19 ships |
 | Unknown `projectId` | No-op; return `''` |
-| Primary force | One active up, `label: "Owner"`, `isPrimary: true`, `owner: null` |
+| Primary force | One active up, `label: "Owner"`, `isPrimary: true`; `owner` copied from project’s primary Owner (or `null`) |
 | `source` at create | Omitted; optional link added in panel |
 | **+ Task** styling | Terracotta pill (match `AppHeader` **+ Project**) |
 | `SidePanel` | No changes required for iteration 11 |
@@ -69,7 +69,7 @@ Implementation:
 | `position` | `0` |
 | `lastMovedAt` | `new Date().toISOString()` |
 | `source` | omitted |
-| `forces` | Single primary up force (same shape as `addProject` §3.2 in iter 10 doc) |
+| `forces` | Single primary up force; `owner` = project primary Owner’s `owner` |
 | `snapshots` | `[]` |
 
 Push onto `project.tasks` for the matching project. Does not mutate `exportedAt`
