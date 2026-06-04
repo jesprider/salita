@@ -202,6 +202,8 @@ unit tests only.
 
 ### Iteration 7 — Panel: force UX
 
+**Design doc:** `docs/superpowers/specs/2026-06-04-salita-iteration-7-panel-force-ux-design.md`
+
 **Goal:** Manager can manage forces during the daily from the side panel.
 
 **Deliverables:**
