@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import type { ForceDirection, Project } from '../schema/types'
 import { forcesByStatus, lookupInProject } from '../composables/trackableLookup'
+import { parseSourceUrl, sourceOpenLabel } from '../domain/parseSourceUrl'
 import { useHillChartStore } from '../stores/hillChart'
 import ForceAddForm from './ForceAddForm.vue'
 import ForceChip from './ForceChip.vue'
+import SourceSystemIcon from './SourceSystemIcon.vue'
 
 const props = defineProps<{
   project: Project
@@ -18,12 +20,20 @@ defineEmits<{
 const store = useHillChartStore()
 const editingForceId = ref<string | null>(null)
 const addingDirection = ref<ForceDirection | null>(null)
+const editingHeader = ref(false)
+const draftName = ref('')
+const draftLink = ref('')
+const nameInvalid = ref(false)
+const linkInvalid = ref(false)
+const nameRef = ref<HTMLInputElement | null>(null)
+const linkRef = ref<HTMLInputElement | null>(null)
 
 watch(
   () => props.trackableId,
   () => {
     editingForceId.value = null
     addingDirection.value = null
+    editingHeader.value = false
   },
 )
 
@@ -46,8 +56,76 @@ const pastDown = computed(() =>
 
 const atPeak = computed(() => trackable.value?.position === 50)
 
+const sourceUrl = computed(() => trackable.value?.source?.url)
+const sourceSystem = computed(() => trackable.value?.source?.system)
+const sourceAria = computed(() => sourceOpenLabel(sourceSystem.value))
+
+function cancelHeaderEdit() {
+  editingHeader.value = false
+  nameInvalid.value = false
+  linkInvalid.value = false
+}
+
+function startHeaderEdit() {
+  if (!trackable.value) return
+  editingForceId.value = null
+  addingDirection.value = null
+  draftName.value = trackable.value.name
+  draftLink.value = trackable.value.source?.url ?? ''
+  nameInvalid.value = false
+  linkInvalid.value = false
+  editingHeader.value = true
+  void nextTick(() => nameRef.value?.focus())
+}
+
+function trySaveHeader() {
+  if (!trackable.value) return
+  const trimmedName = draftName.value.trim()
+  if (!trimmedName) {
+    nameInvalid.value = true
+    nameRef.value?.focus()
+    return
+  }
+  nameInvalid.value = false
+
+  const trimmedLink = draftLink.value.trim()
+  if (!trimmedLink) {
+    linkInvalid.value = false
+    store.updateTrackable(props.trackableId, { name: trimmedName, source: null })
+    editingHeader.value = false
+    return
+  }
+
+  const parsed = parseSourceUrl(trimmedLink)
+  if (parsed === 'invalid') {
+    linkInvalid.value = true
+    linkRef.value?.focus()
+    return
+  }
+  linkInvalid.value = false
+  store.updateTrackable(props.trackableId, { name: trimmedName, source: parsed })
+  editingHeader.value = false
+}
+
+function onHeaderKeydown(event: KeyboardEvent) {
+  if (!editingHeader.value) return
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    trySaveHeader()
+  } else if (event.key === 'Escape') {
+    event.preventDefault()
+    cancelHeaderEdit()
+  }
+}
+
+function onSliderInput(event: Event) {
+  const value = Number((event.target as HTMLInputElement).value)
+  store.setPosition(props.trackableId, value)
+}
+
 function startEdit(forceId: string) {
   addingDirection.value = null
+  editingHeader.value = false
   editingForceId.value = forceId
 }
 
@@ -70,6 +148,7 @@ function onUnresolve(forceId: string) {
 
 function startAdd(direction: ForceDirection) {
   editingForceId.value = null
+  editingHeader.value = false
   addingDirection.value = direction
 }
 
@@ -90,8 +169,50 @@ function onAddSave(direction: ForceDirection, payload: { label: string; owner: s
     aria-label="Work item details"
   >
     <div class="mb-6 flex items-start justify-between gap-3">
-      <div class="min-w-0">
-        <h2 class="font-heading text-xl leading-tight">{{ trackable.name }}</h2>
+      <div class="min-w-0 flex-1">
+        <div v-if="editingHeader" class="space-y-2" @keydown="onHeaderKeydown">
+          <input
+            ref="nameRef"
+            v-model="draftName"
+            type="text"
+            class="w-full rounded-lg border-0 bg-white/80 px-2 py-1 font-heading text-xl outline-none focus:ring-1 focus:ring-terracotta/40"
+            :aria-invalid="nameInvalid"
+            aria-label="Name"
+            @input="nameInvalid = false"
+          />
+          <input
+            ref="linkRef"
+            v-model="draftLink"
+            type="url"
+            placeholder="Paste tracker URL…"
+            class="w-full rounded-lg border-0 bg-white/80 px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-terracotta/40"
+            :aria-invalid="linkInvalid"
+            aria-label="External link"
+            @input="linkInvalid = false"
+            @blur="trySaveHeader"
+          />
+          <p v-if="linkInvalid" class="text-xs text-rust">Enter a valid http or https URL.</p>
+        </div>
+        <div v-else class="flex items-start gap-2">
+          <a
+            v-if="sourceUrl"
+            :href="sourceUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-1 shrink-0 rounded-full p-0.5 text-terracotta hover:bg-hill-sand"
+            :aria-label="sourceAria"
+          >
+            <SourceSystemIcon :system="sourceSystem" />
+          </a>
+          <button
+            type="button"
+            class="min-w-0 cursor-text text-left font-heading text-xl leading-tight hover:underline hover:decoration-terracotta/40"
+            title="Click to edit name and link"
+            @click="startHeaderEdit"
+          >
+            {{ trackable.name }}
+          </button>
+        </div>
         <span class="mt-2 inline-block rounded-full bg-hill-sand px-2.5 py-0.5 text-xs capitalize">
           {{ kind }}
         </span>
@@ -106,21 +227,24 @@ function onAddSave(direction: ForceDirection, payload: { label: string; owner: s
       </button>
     </div>
 
-    <p v-if="trackable.source?.url" class="mb-6 text-sm">
-      <a
-        :href="trackable.source.url"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-terracotta underline-offset-2 hover:underline"
-      >
-        {{ trackable.source.system ? `${trackable.source.system}:` : ''
-        }}{{ trackable.source.id ?? trackable.source.url }}
-      </a>
-    </p>
-
     <section class="mb-6">
       <h3 class="mb-2 text-xs font-medium tracking-wide text-text-warm/60 uppercase">Position</h3>
-      <p class="text-lg">{{ trackable.position }}</p>
+      <div class="flex items-center gap-3">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          :value="trackable.position"
+          class="flex-1 accent-terracotta"
+          :aria-valuenow="trackable.position"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-label="Position on hill"
+          @input="onSliderInput"
+        />
+        <span class="w-8 text-right text-lg tabular-nums">{{ trackable.position }}</span>
+      </div>
       <p v-if="atPeak" class="mt-1 text-sm text-text-warm/70">At the peak</p>
     </section>
 

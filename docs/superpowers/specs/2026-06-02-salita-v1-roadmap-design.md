@@ -54,7 +54,7 @@ whose status is `pending`** and work only that scope.
 | 5 | side-panel-readonly | **done** | M2 |
 | 6 | store-force-mutations | **done** | M2 |
 | 7 | panel-force-ux | **done** | M3 |
-| 8 | panel-dot-edits | **pending** | M3 |
+| 8 | panel-dot-edits | **done** | M3 |
 | 9 | overview-click-drill | **pending** | M3 |
 | 10 | add-project | **pending** | M4 |
 | 11 | add-task | **pending** | M4 |
@@ -428,8 +428,9 @@ in the panel.
 | 3 | `docs/superpowers/specs/2026-06-02-salita-iteration-3-persist-state-design.md` |
 | 6 | `docs/superpowers/specs/2026-06-03-salita-iteration-6-store-force-mutations-design.md` |
 | 7 | `docs/superpowers/specs/2026-06-04-salita-iteration-7-panel-force-ux-design.md` |
+| 8 | `docs/superpowers/specs/2026-06-04-salita-iteration-8-panel-dot-edits-design.md` |
 
-*(Add rows here as iterations 4–5, 8+ complete.)*
+*(Add rows here as iterations 4–5 complete.)*
 
 ---
 
