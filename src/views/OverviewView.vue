@@ -8,27 +8,17 @@ import AppHeader from '../components/AppHeader.vue'
 import HillChart from '../components/HillChart.vue'
 import ImportButton from '../components/ImportButton.vue'
 import SidePanel from '../components/SidePanel.vue'
-import { canImport } from '../schema/importRules'
 import { validateHillChartJson } from '../schema/validate'
 
 const store = useHillChartStore()
 const router = useRouter()
-const { projects, demo } = storeToRefs(store)
+const { projects, demo, canImport: importEnabled } = storeToRefs(store)
 const selectedTrackableId = ref<string | null>(null)
 const importButtonRef = ref<InstanceType<typeof ImportButton> | null>(null)
 const importErrors = ref<string[]>([])
 const isDraggingFile = ref(false)
 
 const markers = computed(() => overviewMarkers(projects.value))
-
-const importEnabled = computed(() =>
-  canImport({
-    version: store.version,
-    exportedAt: store.exportedAt,
-    demo: demo.value,
-    projects: projects.value,
-  }),
-)
 
 const showDemoLabel = computed(() => demo.value && projects.value.length > 0)
 const isEmpty = computed(() => projects.value.length === 0)

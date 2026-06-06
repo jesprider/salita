@@ -11,7 +11,6 @@ import type {
 import { sampleState } from '../data/sample'
 import { snapIfDownhillWithBlockers } from '../domain/forceRules'
 import { PALETTE_ORDER } from '../schema/palette'
-import { canImport } from '../schema/importRules'
 import { HILL_CHART_STORAGE_KEY } from '../storage/loadState'
 
 function findTrackableById(projects: Project[], id: string): HillTrackable | undefined {
@@ -33,9 +32,14 @@ export const useHillChartStore = defineStore('hillChart', {
   persist: {
     key: HILL_CHART_STORAGE_KEY,
   },
+  getters: {
+    canImport(state): boolean {
+      return state.demo === true || state.projects.length === 0
+    },
+  },
   actions: {
     importState(state: HillChartState): void {
-      if (!canImport(this.$state)) return
+      if (!this.canImport) return
       this.version = state.version
       this.exportedAt = state.exportedAt
       this.projects = state.projects
