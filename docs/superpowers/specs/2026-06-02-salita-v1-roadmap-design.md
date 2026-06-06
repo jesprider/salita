@@ -59,7 +59,7 @@ whose status is `pending`** and work only that scope.
 | 10 | add-project | **done** | M4 |
 | 11 | add-task | **done** | M4 |
 | 12 | import | **done** | M4 |
-| 13 | export-clean | **pending** | M4 |
+| 13 | export-clean | **done** | M4 |
 | 14 | end-daily | **pending** | M5 |
 | 15 | trail-on-chart | **pending** | M5 |
 | 16 | peak-crossing | **pending** | M6 |
@@ -433,8 +433,7 @@ in the panel.
 | 10 | `docs/superpowers/specs/2026-06-04-salita-iteration-10-add-project-design.md` |
 | 11 | `docs/superpowers/specs/2026-06-04-salita-iteration-11-add-task-design.md` |
 | 12 | `docs/superpowers/specs/2026-06-04-salita-iteration-12-import-design.md` |
-
-*(Add rows here as iterations 4–5 complete.)*
+| 13 | `docs/superpowers/specs/2026-06-06-salita-iteration-13-export-clean-design.md` |
 
 ---
 
