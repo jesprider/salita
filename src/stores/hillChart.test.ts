@@ -350,4 +350,29 @@ describe('hillChart store', () => {
       expect(store.projects).toHaveLength(1)
     })
   })
+
+  describe('exportState', () => {
+    it('sets exportedAt and returns a snapshot of root state', () => {
+      const store = useHillChartStore()
+      expect(store.exportedAt).toBeNull()
+
+      const snapshot = store.exportState()
+
+      expect(store.exportedAt).not.toBeNull()
+      expect(snapshot.exportedAt).toBe(store.exportedAt)
+      expect(snapshot.version).toBe(store.version)
+      expect(snapshot.demo).toBe(store.demo)
+      expect(snapshot.projects).toBe(store.projects)
+      expect(snapshot.projects.length).toBe(4)
+    })
+
+    it('preserves demo true in snapshot while on sample data', () => {
+      const store = useHillChartStore()
+      expect(store.demo).toBe(true)
+
+      const snapshot = store.exportState()
+
+      expect(snapshot.demo).toBe(true)
+    })
+  })
 })
