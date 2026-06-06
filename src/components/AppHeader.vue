@@ -1,7 +1,6 @@
 <script setup lang="ts">
 defineProps<{
   importEnabled: boolean
-  importDisabledTitle?: string
 }>()
 
 defineEmits<{
@@ -17,11 +16,7 @@ defineEmits<{
       <button
         type="button"
         :disabled="!importEnabled"
-        :title="
-          importEnabled
-            ? undefined
-            : (importDisabledTitle ?? 'Export and Clean before importing again')
-        "
+        :title="importEnabled ? undefined : 'Export and Clean before importing again'"
         :class="
           importEnabled
             ? 'rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm transition-opacity hover:opacity-90'
