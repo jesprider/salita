@@ -8,6 +8,7 @@ import AppHeader from '../components/AppHeader.vue'
 import HillChart from '../components/HillChart.vue'
 import ImportButton from '../components/ImportButton.vue'
 import SidePanel from '../components/SidePanel.vue'
+import { downloadJson } from '../lib/downloadJson'
 import { validateHillChartJson } from '../schema/validate'
 
 const store = useHillChartStore()
@@ -22,6 +23,8 @@ const markers = computed(() => overviewMarkers(projects.value))
 
 const showDemoLabel = computed(() => demo.value && projects.value.length > 0)
 const isEmpty = computed(() => projects.value.length === 0)
+const exportEnabled = computed(() => projects.value.length > 0)
+const cleanEnabled = computed(() => projects.value.length > 0)
 
 const selectedProject = computed(() =>
   selectedTrackableId.value
@@ -55,6 +58,22 @@ function onAddProject() {
 
 function onImportClick() {
   importButtonRef.value?.openPicker()
+}
+
+function onExportClick() {
+  if (!exportEnabled.value) return
+  const state = store.exportState()
+  const ts = state.exportedAt!.replace(/[:.]/g, '')
+  downloadJson(`hill-chart-${ts}.json`, state)
+}
+
+function onCleanClick() {
+  if (!cleanEnabled.value) return
+  const ok = window.confirm('This will delete all projects, tasks, and history. Export first?')
+  if (!ok) return
+  store.cleanState()
+  selectedTrackableId.value = null
+  importErrors.value = []
 }
 
 async function handleImportFile(file: File) {
@@ -111,8 +130,12 @@ async function onDrop(ev: DragEvent) {
 <template>
   <AppHeader
     :import-enabled="importEnabled"
+    :export-enabled="exportEnabled"
+    :clean-enabled="cleanEnabled"
     @add-project="onAddProject"
     @import-click="onImportClick"
+    @export-click="onExportClick"
+    @clean-click="onCleanClick"
   />
   <ImportButton ref="importButtonRef" :enabled="importEnabled" @file-selected="handleImportFile" />
 
