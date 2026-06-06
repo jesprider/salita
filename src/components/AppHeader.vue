@@ -1,11 +1,15 @@
 <script setup lang="ts">
 defineProps<{
   importEnabled: boolean
+  exportEnabled: boolean
+  cleanEnabled: boolean
 }>()
 
 defineEmits<{
   (e: 'add-project'): void
   (e: 'import-click'): void
+  (e: 'export-click'): void
+  (e: 'clean-click'): void
 }>()
 </script>
 
@@ -28,15 +32,25 @@ defineEmits<{
       </button>
       <button
         type="button"
-        disabled
-        class="cursor-not-allowed rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm/50"
+        :disabled="!exportEnabled"
+        :class="
+          exportEnabled
+            ? 'rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm transition-opacity hover:opacity-90'
+            : 'cursor-not-allowed rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm/50'
+        "
+        @click="exportEnabled && $emit('export-click')"
       >
         Export
       </button>
       <button
         type="button"
-        disabled
-        class="cursor-not-allowed rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm/50"
+        :disabled="!cleanEnabled"
+        :class="
+          cleanEnabled
+            ? 'rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm transition-opacity hover:opacity-90'
+            : 'cursor-not-allowed rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm/50'
+        "
+        @click="cleanEnabled && $emit('clean-click')"
       >
         Clean
       </button>
