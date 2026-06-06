@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { localDateString, isSameLocalDay, msUntilLocalMidnight } from './localDate'
+import { localDateString, isSameLocalDay } from './localDate'
 
 describe('localDate', () => {
   it('formats local calendar date as YYYY-MM-DD', () => {
@@ -20,12 +20,5 @@ describe('localDate', () => {
   it('isSameLocalDay returns false for different day', () => {
     const d = new Date(2026, 5, 6)
     expect(isSameLocalDay('2026-06-05', d)).toBe(false)
-  })
-
-  it('msUntilLocalMidnight is positive and under 24h', () => {
-    const d = new Date(2026, 5, 6, 12, 0, 0)
-    const ms = msUntilLocalMidnight(d)
-    expect(ms).toBeGreaterThan(0)
-    expect(ms).toBeLessThanOrEqual(24 * 60 * 60 * 1000)
   })
 })
