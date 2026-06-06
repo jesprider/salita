@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { BLOCKER_SNAP_POSITION } from '../domain/forceRules'
-import { canImport } from '../schema/importRules'
 import { PALETTE_ORDER } from '../schema/palette'
 import { MINIMAL_IMPORT_JSON } from '../schema/testFixtures'
 import { validateHillChartJson } from '../schema/validate'
@@ -288,6 +287,26 @@ describe('hillChart store', () => {
     })
   })
 
+  describe('canImport getter', () => {
+    it('returns true when demo is true', () => {
+      const store = useHillChartStore()
+      expect(store.canImport).toBe(true)
+    })
+
+    it('returns true when projects is empty', () => {
+      const store = useHillChartStore()
+      store.demo = false
+      store.projects = []
+      expect(store.canImport).toBe(true)
+    })
+
+    it('returns false when demo false and projects exist', () => {
+      const store = useHillChartStore()
+      store.demo = false
+      expect(store.canImport).toBe(false)
+    })
+  })
+
   describe('demo flag', () => {
     it('setPosition does not clear demo', () => {
       const store = useHillChartStore()
@@ -308,7 +327,7 @@ describe('hillChart store', () => {
       expect(store.demo).toBe(false)
       expect(store.projects).toHaveLength(1)
       expect(store.projects[0].id).toBe('proj_import_1')
-      expect(canImport(store.$state)).toBe(false)
+      expect(store.canImport).toBe(false)
     })
 
     it('no-ops when demo false and projects exist', () => {
