@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { BLOCKER_SNAP_POSITION } from '../domain/forceRules'
+import { localDateString } from '../lib/localDate'
 import { PALETTE_ORDER } from '../schema/palette'
 import { MINIMAL_IMPORT_JSON } from '../schema/testFixtures'
 import { validateHillChartJson } from '../schema/validate'
@@ -362,6 +363,7 @@ describe('hillChart store', () => {
       expect(snapshot.exportedAt).toBe(store.exportedAt)
       expect(snapshot.version).toBe(store.version)
       expect(snapshot.demo).toBe(store.demo)
+      expect(snapshot.lastDailyDate).toBe(store.lastDailyDate)
       expect(snapshot.projects).toBe(store.projects)
       expect(snapshot.projects.length).toBe(4)
     })
@@ -388,6 +390,7 @@ describe('hillChart store', () => {
       expect(store.exportedAt).toBeNull()
       expect(store.demo).toBe(false)
       expect(store.version).toBe(1)
+      expect(store.lastDailyDate).toBeNull()
       expect(store.canImport).toBe(true)
     })
 
@@ -401,6 +404,104 @@ describe('hillChart store', () => {
 
       expect(store.projects).toEqual([])
       expect(store.demo).toBe(false)
+    })
+  })
+
+  describe('endDaily', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date(2026, 5, 6, 12, 0, 0))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('sets snapshots on all projects and nested tasks', () => {
+      const store = useHillChartStore()
+      const today = localDateString()
+
+      store.endDaily()
+
+      expect(store.lastDailyDate).toBe(today)
+      for (const project of store.projects) {
+        expect(project.snapshots).toContainEqual({ date: today, position: project.position })
+        for (const task of project.tasks) {
+          expect(task.snapshots).toContainEqual({ date: today, position: task.position })
+        }
+      }
+    })
+
+    it('replaces existing snapshot when same date already present', () => {
+      const store = useHillChartStore()
+      const today = localDateString()
+      const project = store.projects[0]
+      project.snapshots = [{ date: today, position: 1 }]
+      project.position = 99
+
+      store.endDaily()
+
+      expect(project.snapshots).toEqual([{ date: today, position: 99 }])
+    })
+
+    it('sorts snapshots newest-first after upsert', () => {
+      const store = useHillChartStore()
+      const project = store.projects[0]
+      project.snapshots = [{ date: '2026-06-05', position: 10 }]
+
+      store.endDaily()
+
+      expect(project.snapshots[0].date).toBe('2026-06-06')
+      expect(project.snapshots[1].date).toBe('2026-06-05')
+    })
+
+    it('no-ops when projects empty', () => {
+      const store = useHillChartStore()
+      store.projects = []
+
+      store.endDaily()
+
+      expect(store.lastDailyDate).toBeNull()
+    })
+
+    it('addTask after endDaily leaves new task without today snapshot', () => {
+      const store = useHillChartStore()
+      const today = localDateString()
+      const project = store.projects[0]
+
+      store.endDaily()
+      const taskId = store.addTask(project.id)
+      const task = project.tasks.find((t) => t.id === taskId)!
+
+      expect(store.lastDailyDate).toBe(today)
+      expect(task.snapshots).toEqual([])
+    })
+
+    it('cleanState clears lastDailyDate', () => {
+      const store = useHillChartStore()
+      store.endDaily()
+
+      store.cleanState()
+
+      expect(store.lastDailyDate).toBeNull()
+    })
+
+    it('exportState includes lastDailyDate', () => {
+      const store = useHillChartStore()
+      store.endDaily()
+
+      const snapshot = store.exportState()
+
+      expect(snapshot.lastDailyDate).toBe('2026-06-06')
+    })
+
+    it('preserves demo true after endDaily', () => {
+      const store = useHillChartStore()
+      expect(store.demo).toBe(true)
+
+      store.endDaily()
+
+      expect(store.demo).toBe(true)
     })
   })
 })

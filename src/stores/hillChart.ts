@@ -10,6 +10,8 @@ import type {
 } from '../schema/types'
 import { sampleState } from '../data/sample'
 import { snapIfDownhillWithBlockers } from '../domain/forceRules'
+import { upsertSnapshot } from '../domain/snapshots'
+import { localDateString } from '../lib/localDate'
 import { PALETTE_ORDER } from '../schema/palette'
 import { HILL_CHART_STORAGE_KEY } from '../storage/loadState'
 
@@ -42,6 +44,7 @@ export const useHillChartStore = defineStore('hillChart', {
       if (!this.canImport) return
       this.version = state.version
       this.exportedAt = state.exportedAt
+      this.lastDailyDate = state.lastDailyDate ?? null
       this.projects = state.projects
       this.demo = false
     },
@@ -52,6 +55,7 @@ export const useHillChartStore = defineStore('hillChart', {
         version: this.version,
         exportedAt: this.exportedAt,
         demo: this.demo,
+        lastDailyDate: this.lastDailyDate,
         projects: this.projects,
       }
     },
@@ -61,7 +65,20 @@ export const useHillChartStore = defineStore('hillChart', {
       this.version = 1
       this.exportedAt = null
       this.demo = false
+      this.lastDailyDate = null
       this.projects = []
+    },
+
+    endDaily(): void {
+      if (this.projects.length === 0) return
+      const today = localDateString()
+      for (const project of this.projects) {
+        project.snapshots = upsertSnapshot(project.snapshots, today, project.position)
+        for (const task of project.tasks) {
+          task.snapshots = upsertSnapshot(task.snapshots, today, task.position)
+        }
+      }
+      this.lastDailyDate = today
     },
 
     addProject(): string {

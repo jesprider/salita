@@ -3,6 +3,8 @@ defineProps<{
   importEnabled: boolean
   exportEnabled: boolean
   cleanEnabled: boolean
+  endDailyEnabled: boolean
+  endDailyLabel: 'End daily' | 'Saved'
 }>()
 
 defineEmits<{
@@ -10,6 +12,7 @@ defineEmits<{
   (e: 'import-click'): void
   (e: 'export-click'): void
   (e: 'clean-click'): void
+  (e: 'end-daily-click'): void
 }>()
 </script>
 
@@ -63,10 +66,15 @@ defineEmits<{
       </button>
       <button
         type="button"
-        disabled
-        class="cursor-not-allowed rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm/50"
+        :disabled="!endDailyEnabled"
+        :class="
+          endDailyEnabled
+            ? 'rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm transition-opacity hover:opacity-90'
+            : 'cursor-not-allowed rounded-full bg-hill-sand px-4 py-2 text-sm text-text-warm/50'
+        "
+        @click="endDailyEnabled && $emit('end-daily-click')"
       >
-        End daily
+        {{ endDailyLabel }}
       </button>
     </div>
   </header>

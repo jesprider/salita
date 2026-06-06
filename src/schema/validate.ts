@@ -349,6 +349,19 @@ export function validateHillChartObject(data: unknown): ValidateResult {
     demo = data.demo
   }
 
+  let lastDailyDate: string | null = null
+  if (data.lastDailyDate === undefined || data.lastDailyDate === null) {
+    lastDailyDate = null
+  } else if (typeof data.lastDailyDate === 'string') {
+    if (!isIsoDateString(data.lastDailyDate)) {
+      pushError(errors, 'lastDailyDate', 'must be a valid date string')
+    } else {
+      lastDailyDate = data.lastDailyDate
+    }
+  } else {
+    pushError(errors, 'lastDailyDate', 'must be null or a string')
+  }
+
   let projects: Project[] = []
   if (data.projects === undefined) {
     projects = []
@@ -375,6 +388,7 @@ export function validateHillChartObject(data: unknown): ValidateResult {
       version: 1,
       exportedAt,
       demo,
+      lastDailyDate,
       projects,
     },
   }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watchEffect } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useHillChartStore } from '../stores/hillChart'
@@ -9,6 +9,7 @@ import HillChart from '../components/HillChart.vue'
 import ImportButton from '../components/ImportButton.vue'
 import SidePanel from '../components/SidePanel.vue'
 import { downloadJson } from '../lib/downloadJson'
+import { localDateString, msUntilLocalMidnight } from '../lib/localDate'
 import { validateHillChartJson } from '../schema/validate'
 
 const store = useHillChartStore()
@@ -25,6 +26,32 @@ const showDemoLabel = computed(() => demo.value && projects.value.length > 0)
 const isEmpty = computed(() => projects.value.length === 0)
 const exportEnabled = computed(() => projects.value.length > 0)
 const cleanEnabled = computed(() => projects.value.length > 0)
+
+const dayKey = ref(0)
+const endDailyLabel = ref<'End daily' | 'Saved'>('End daily')
+let midnightTimer: ReturnType<typeof setTimeout> | undefined
+
+const today = computed(() => {
+  void dayKey.value
+  return localDateString()
+})
+
+const endDailyEnabled = computed(
+  () => projects.value.length > 0 && store.lastDailyDate !== today.value,
+)
+
+function scheduleMidnightRollover() {
+  if (midnightTimer) clearTimeout(midnightTimer)
+  midnightTimer = setTimeout(() => {
+    dayKey.value++
+    scheduleMidnightRollover()
+  }, msUntilLocalMidnight())
+}
+
+onMounted(() => scheduleMidnightRollover())
+onUnmounted(() => {
+  if (midnightTimer) clearTimeout(midnightTimer)
+})
 
 const selectedProject = computed(() =>
   selectedTrackableId.value
@@ -74,6 +101,14 @@ function onCleanClick() {
   store.cleanState()
   selectedTrackableId.value = null
   importErrors.value = []
+}
+
+function onEndDailyClick() {
+  store.endDaily()
+  endDailyLabel.value = 'Saved'
+  setTimeout(() => {
+    endDailyLabel.value = 'End daily'
+  }, 2000)
 }
 
 async function handleImportFile(file: File) {
@@ -132,10 +167,13 @@ async function onDrop(ev: DragEvent) {
     :import-enabled="importEnabled"
     :export-enabled="exportEnabled"
     :clean-enabled="cleanEnabled"
+    :end-daily-enabled="endDailyEnabled"
+    :end-daily-label="endDailyLabel"
     @add-project="onAddProject"
     @import-click="onImportClick"
     @export-click="onExportClick"
     @clean-click="onCleanClick"
+    @end-daily-click="onEndDailyClick"
   />
   <ImportButton ref="importButtonRef" :enabled="importEnabled" @file-selected="handleImportFile" />
 
