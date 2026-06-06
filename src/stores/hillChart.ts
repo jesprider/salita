@@ -46,6 +46,16 @@ export const useHillChartStore = defineStore('hillChart', {
       this.demo = false
     },
 
+    exportState(): HillChartState {
+      this.exportedAt = new Date().toISOString()
+      return {
+        version: this.version,
+        exportedAt: this.exportedAt,
+        demo: this.demo,
+        projects: this.projects,
+      }
+    },
+
     addProject(): string {
       const now = new Date().toISOString()
       const id = `proj_${crypto.randomUUID()}`
