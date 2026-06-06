@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useHillChartStore } from '../stores/hillChart'
@@ -9,7 +9,7 @@ import HillChart from '../components/HillChart.vue'
 import ImportButton from '../components/ImportButton.vue'
 import SidePanel from '../components/SidePanel.vue'
 import { downloadJson } from '../lib/downloadJson'
-import { localDateString, msUntilLocalMidnight } from '../lib/localDate'
+import { localDateString } from '../lib/localDate'
 import { validateHillChartJson } from '../schema/validate'
 
 const store = useHillChartStore()
@@ -27,31 +27,11 @@ const isEmpty = computed(() => projects.value.length === 0)
 const exportEnabled = computed(() => projects.value.length > 0)
 const cleanEnabled = computed(() => projects.value.length > 0)
 
-const dayKey = ref(0)
 const endDailyLabel = ref<'End daily' | 'Saved'>('End daily')
-let midnightTimer: ReturnType<typeof setTimeout> | undefined
-
-const today = computed(() => {
-  void dayKey.value
-  return localDateString()
-})
 
 const endDailyEnabled = computed(
-  () => projects.value.length > 0 && store.lastDailyDate !== today.value,
+  () => projects.value.length > 0 && store.lastDailyDate !== localDateString(),
 )
-
-function scheduleMidnightRollover() {
-  if (midnightTimer) clearTimeout(midnightTimer)
-  midnightTimer = setTimeout(() => {
-    dayKey.value++
-    scheduleMidnightRollover()
-  }, msUntilLocalMidnight())
-}
-
-onMounted(() => scheduleMidnightRollover())
-onUnmounted(() => {
-  if (midnightTimer) clearTimeout(midnightTimer)
-})
 
 const selectedProject = computed(() =>
   selectedTrackableId.value
