@@ -375,4 +375,32 @@ describe('hillChart store', () => {
       expect(snapshot.demo).toBe(true)
     })
   })
+
+  describe('cleanState', () => {
+    it('empties projects, clears exportedAt, sets demo false, enables import', () => {
+      const store = useHillChartStore()
+      store.exportedAt = '2026-01-01T00:00:00.000Z'
+      store.demo = true
+
+      store.cleanState()
+
+      expect(store.projects).toEqual([])
+      expect(store.exportedAt).toBeNull()
+      expect(store.demo).toBe(false)
+      expect(store.version).toBe(1)
+      expect(store.canImport).toBe(true)
+    })
+
+    it('no-ops when projects already empty', () => {
+      const store = useHillChartStore()
+      store.projects = []
+      store.demo = false
+      store.exportedAt = null
+
+      store.cleanState()
+
+      expect(store.projects).toEqual([])
+      expect(store.demo).toBe(false)
+    })
+  })
 })
