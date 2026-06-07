@@ -99,6 +99,15 @@ describe('overviewMarkers', () => {
     expect(markers[0].stalenessSatellites).toBe(4)
   })
 
+  it('skips staleness satellites when done at position 100', () => {
+    const oldMove = new Date()
+    oldMove.setDate(oldMove.getDate() - 10)
+    const markers = overviewMarkers([
+      project({ lastMovedAt: oldMove.toISOString(), position: 100 }),
+    ])
+    expect(markers[0].stalenessSatellites).toBe(0)
+  })
+
   it('includes trail ghosts from project snapshots excluding today', () => {
     const markers = overviewMarkers([
       project({

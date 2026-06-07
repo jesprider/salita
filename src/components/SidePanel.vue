@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import type { ForceDirection, Project } from '../schema/types'
 import { forcesByStatus, lookupInProject } from '../composables/trackableLookup'
 import { hasActiveDownForces } from '../domain/forceRules'
-import { daysSinceLastMove } from '../domain/staleness'
+import { daysWithoutMovement } from '../domain/staleness'
 import { parseSourceUrl, sourceOpenLabel } from '../domain/parseSourceUrl'
 import { useHillChartStore } from '../stores/hillChart'
 import ForceAddForm from './ForceAddForm.vue'
@@ -68,11 +68,13 @@ const hasActiveBlockers = computed(() =>
   trackable.value ? hasActiveDownForces(trackable.value.forces) : false,
 )
 const showBlockerHint = computed(() => atPeak.value && hasActiveBlockers.value)
-const daysWithoutMovement = computed(() =>
-  trackable.value ? daysSinceLastMove(trackable.value.lastMovedAt) : 0,
+const daysWithoutMovementCount = computed(() =>
+  trackable.value
+    ? daysWithoutMovement(trackable.value.lastMovedAt, trackable.value.position)
+    : 0,
 )
 const stalenessLabel = computed(() => {
-  const days = daysWithoutMovement.value
+  const days = daysWithoutMovementCount.value
   if (days === 0) return null
   return days === 1 ? '1 day without movement' : `${days} days without movement`
 })
