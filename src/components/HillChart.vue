@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 import { useHillCurve } from '../composables/useHillCurve'
+import { useHillDrag } from '../composables/useHillDrag'
 import type { ChartMarker as ChartMarkerModel } from '../composables/chartMarkers'
 import MarkerChart from './MarkerChart.vue'
 import MarkerTrail from './MarkerTrail.vue'
@@ -16,49 +17,21 @@ const emit = defineEmits<{
   (e: 'click', id: string): void
 }>()
 
-const { CHART, curvePath, curveX, curveY, positionFromRatio } = useHillCurve()
+const { CHART, curvePath, curveX, curveY } = useHillCurve()
 
 const path = curvePath()
 const baseline = CHART.height - CHART.bottomPad
 
 const svgRef = ref<SVGSVGElement | null>(null)
-let draggingId: string | null = null
-let dragStartX = 0
-let didDrag = false
 
-const DRAG_THRESHOLD_PX = 4
+const { startDrag: onGrab } = useHillDrag({
+  getSvg: () => svgRef.value,
+  clickable: () => props.clickable ?? false,
+  onMove: (id, position) => emit('move', id, position),
+  onClick: (id) => emit('click', id),
+})
 
-function onMove(ev: PointerEvent) {
-  if (!draggingId || !svgRef.value) return
-  if (Math.abs(ev.clientX - dragStartX) > DRAG_THRESHOLD_PX) {
-    didDrag = true
-  }
-  const rect = svgRef.value.getBoundingClientRect()
-  if (rect.width === 0) return
-  const ratio = (ev.clientX - rect.left) / rect.width
-  emit('move', draggingId, positionFromRatio(ratio))
-}
-
-function onUp() {
-  const id = draggingId
-  if (id && !didDrag && props.clickable) {
-    emit('click', id)
-  }
-  draggingId = null
-  window.removeEventListener('pointermove', onMove)
-  window.removeEventListener('pointerup', onUp)
-}
-
-function onGrab(id: string, ev: PointerEvent) {
-  ev.preventDefault()
-  draggingId = id
-  dragStartX = ev.clientX
-  didDrag = false
-  window.addEventListener('pointermove', onMove)
-  window.addEventListener('pointerup', onUp)
-}
-
-onBeforeUnmount(onUp)
+defineExpose({ svgRef })
 </script>
 
 <template>
