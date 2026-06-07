@@ -214,6 +214,36 @@ describe('hillChart store', () => {
     })
   })
 
+  describe('setPosition project done guard', () => {
+    it('clamps project to 99 when any task is not done', () => {
+      const store = useHillChartStore()
+      const proj = store.projects.find((p) => p.id === 'proj_2')!
+      const taskId = proj.tasks[0].id
+      store.setPosition(taskId, 50)
+      store.setPosition(proj.id, 100)
+      expect(proj.position).toBe(99)
+    })
+
+    it('allows project at 100 when all tasks are done', () => {
+      const store = useHillChartStore()
+      const proj = store.projects.find((p) => p.id === 'proj_2')!
+      for (const t of proj.tasks) {
+        store.setPosition(t.id, 100)
+      }
+      store.setPosition(proj.id, 100)
+      expect(proj.position).toBe(100)
+    })
+
+    it('allows tasks to reach 100 independently of project position', () => {
+      const store = useHillChartStore()
+      const proj = store.projects.find((p) => p.id === 'proj_2')!
+      const taskId = proj.tasks[0].id
+      store.setPosition(taskId, 100)
+      expect(proj.tasks[0].position).toBe(100)
+      expect(proj.position).not.toBe(100)
+    })
+  })
+
   describe('updateTrackable', () => {
     it('renames a project', () => {
       const store = useHillChartStore()

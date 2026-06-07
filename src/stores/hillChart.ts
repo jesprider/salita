@@ -9,6 +9,7 @@ import type {
   Task,
 } from '../schema/types'
 import { sampleState } from '../data/sample'
+import { clampProjectDonePosition } from '../domain/doneRules'
 import { canCrossPeak, PEAK_POSITION, snapIfDownhillWithBlockers } from '../domain/forceRules'
 import { upsertSnapshot } from '../domain/snapshots'
 import { localDateString } from '../lib/localDate'
@@ -150,6 +151,10 @@ export const useHillChartStore = defineStore('hillChart', {
       let next = Math.min(100, Math.max(0, Math.round(position)))
       if (!canCrossPeak(trackable.forces, next, current)) {
         next = PEAK_POSITION
+      }
+      const owningProject = this.projects.find((p) => p.id === id)
+      if (owningProject) {
+        next = clampProjectDonePosition(owningProject, next)
       }
       if (next === current) return
       trackable.position = next
