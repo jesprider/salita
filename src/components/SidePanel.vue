@@ -69,9 +69,7 @@ const hasActiveBlockers = computed(() =>
 )
 const showBlockerHint = computed(() => atPeak.value && hasActiveBlockers.value)
 const daysWithoutMovementCount = computed(() =>
-  trackable.value
-    ? daysWithoutMovement(trackable.value.lastMovedAt, trackable.value.position)
-    : 0,
+  trackable.value ? daysWithoutMovement(trackable.value.lastMovedAt, trackable.value.position) : 0,
 )
 const stalenessLabel = computed(() => {
   const days = daysWithoutMovementCount.value

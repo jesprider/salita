@@ -39,7 +39,11 @@ export function stalenessSatelliteCount(
 }
 
 /** Days without movement for panel copy; 0 when done or moved today. */
-export function daysWithoutMovement(lastMovedAt: string, position: number, today = new Date()): number {
+export function daysWithoutMovement(
+  lastMovedAt: string,
+  position: number,
+  today = new Date(),
+): number {
   if (position === DONE_POSITION) return 0
   return daysSinceLastMove(lastMovedAt, today)
 }
