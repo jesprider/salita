@@ -29,16 +29,16 @@ export function activeCount(forces: Force[], direction: ForceDirection): number 
 export function overviewMarkers(projects: Project[]): ChartMarker[] {
   const today = localDateString()
   return projects.map((p) => ({
-      id: p.id,
-      position: p.position,
-      color: PALETTE[p.color],
-      radius: OVERVIEW_RADIUS,
-      name: p.name,
-      up: activeCount(p.forces, 'up'),
-      down: activeCount(p.forces, 'down'),
-      stalenessSatellites: stalenessSatelliteCount(p.lastMovedAt, p.position),
-      ghosts: trailGhosts(p.snapshots, today),
-    }))
+    id: p.id,
+    position: p.position,
+    color: PALETTE[p.color],
+    radius: OVERVIEW_RADIUS,
+    name: p.name,
+    up: activeCount(p.forces, 'up'),
+    down: activeCount(p.forces, 'down'),
+    stalenessSatellites: stalenessSatelliteCount(p.lastMovedAt, p.position),
+    ghosts: trailGhosts(p.snapshots, today),
+  }))
 }
 
 export function markersForProject(project: Project): ChartMarker[] {
