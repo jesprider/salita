@@ -1,5 +1,9 @@
 import type { Force, ForceDirection, Project } from '../schema/types'
 import { PALETTE } from '../schema/palette'
+import { localDateString } from '../lib/localDate'
+import { trailGhosts, type TrailGhost } from '../domain/trailGhosts'
+
+export type { TrailGhost }
 
 export interface ChartMarker {
   id: string
@@ -9,6 +13,7 @@ export interface ChartMarker {
   name: string
   up: number
   down: number
+  ghosts: TrailGhost[]
 }
 
 const OVERVIEW_RADIUS = 16
@@ -20,6 +25,7 @@ export function activeCount(forces: Force[], direction: ForceDirection): number 
 }
 
 export function overviewMarkers(projects: Project[]): ChartMarker[] {
+  const today = localDateString()
   return projects.map((p) => ({
     id: p.id,
     position: p.position,
@@ -28,10 +34,12 @@ export function overviewMarkers(projects: Project[]): ChartMarker[] {
     name: p.name,
     up: activeCount(p.forces, 'up'),
     down: activeCount(p.forces, 'down'),
+    ghosts: trailGhosts(p.snapshots, today),
   }))
 }
 
 export function markersForProject(project: Project): ChartMarker[] {
+  const today = localDateString()
   const color = PALETTE[project.color]
   const projectMarker: ChartMarker = {
     id: project.id,
@@ -41,6 +49,7 @@ export function markersForProject(project: Project): ChartMarker[] {
     name: project.name,
     up: activeCount(project.forces, 'up'),
     down: activeCount(project.forces, 'down'),
+    ghosts: trailGhosts(project.snapshots, today),
   }
   const taskMarkers: ChartMarker[] = project.tasks.map((t) => ({
     id: t.id,
@@ -50,6 +59,7 @@ export function markersForProject(project: Project): ChartMarker[] {
     name: t.name,
     up: activeCount(t.forces, 'up'),
     down: activeCount(t.forces, 'down'),
+    ghosts: trailGhosts(t.snapshots, today),
   }))
   return [projectMarker, ...taskMarkers]
 }

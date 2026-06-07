@@ -89,6 +89,23 @@ describe('overviewMarkers', () => {
       down: 0,
     })
   })
+
+  it('includes trail ghosts from project snapshots excluding today', () => {
+    const markers = overviewMarkers([
+      project({
+        snapshots: [
+          { date: '2020-01-03', position: 50 },
+          { date: '2020-01-01', position: 30 },
+          { date: '2020-01-02', position: 40 },
+        ],
+      }),
+    ])
+    expect(markers[0].ghosts).toEqual([
+      { position: 30, opacity: 0.1 },
+      { position: 40, opacity: 0.4 },
+      { position: 50, opacity: 0.7 },
+    ])
+  })
 })
 
 describe('markersForProject', () => {
@@ -128,5 +145,23 @@ describe('markersForProject', () => {
     const markers = markersForProject(project({ tasks: [] }))
     expect(markers).toHaveLength(1)
     expect(markers[0].radius).toBe(22)
+  })
+
+  it('includes trail ghosts on task markers in project view', () => {
+    const markers = markersForProject(
+      project({
+        tasks: [
+          {
+            id: 'task_a',
+            name: 'Task A',
+            position: 40,
+            lastMovedAt: '',
+            forces: [],
+            snapshots: [{ date: '2020-01-01', position: 22 }],
+          },
+        ],
+      }),
+    )
+    expect(markers[1].ghosts).toEqual([{ position: 22, opacity: 0.7 }])
   })
 })
