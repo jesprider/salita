@@ -3,6 +3,7 @@ import { ref, onBeforeUnmount } from 'vue'
 import { useHillCurve } from '../composables/useHillCurve'
 import type { ChartMarker as ChartMarkerModel } from '../composables/chartMarkers'
 import ChartMarker from './ChartMarker.vue'
+import MarkerTrail from './MarkerTrail.vue'
 
 const props = defineProps<{
   markers: ChartMarkerModel[]
@@ -83,20 +84,24 @@ onBeforeUnmount(onUp)
       stroke-width="2"
     />
 
-    <ChartMarker
-      v-for="m in markers"
-      :key="m.id"
-      :cx="curveX(m.position)"
-      :cy="curveY(m.position)"
-      :radius="m.radius"
-      :color="m.color"
-      :name="m.name"
-      :up="m.up"
-      :down="m.down"
-      :ghosts="m.ghosts"
-      :show-trail="m.id === selectedId"
-      @grab="(ev: PointerEvent) => onGrab(m.id, ev)"
-      @open="emit('open', m.id)"
-    />
+    <g v-for="m in markers" :key="m.id">
+      <MarkerTrail
+        v-if="m.id === selectedId"
+        :ghosts="m.ghosts"
+        :radius="m.radius"
+        :color="m.color"
+      />
+      <ChartMarker
+        :cx="curveX(m.position)"
+        :cy="curveY(m.position)"
+        :radius="m.radius"
+        :color="m.color"
+        :name="m.name"
+        :up="m.up"
+        :down="m.down"
+        @grab="(ev: PointerEvent) => onGrab(m.id, ev)"
+        @open="emit('open', m.id)"
+      />
+    </g>
   </svg>
 </template>
