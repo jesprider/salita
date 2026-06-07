@@ -4,7 +4,11 @@ import { useHillCurve } from '../composables/useHillCurve'
 import type { ChartMarker as ChartMarkerModel } from '../composables/chartMarkers'
 import ChartMarker from './ChartMarker.vue'
 
-const props = defineProps<{ markers: ChartMarkerModel[]; clickable?: boolean }>()
+const props = defineProps<{
+  markers: ChartMarkerModel[]
+  clickable?: boolean
+  selectedId?: string | null
+}>()
 const emit = defineEmits<{
   (e: 'move', id: string, position: number): void
   (e: 'open', id: string): void
@@ -89,6 +93,8 @@ onBeforeUnmount(onUp)
       :name="m.name"
       :up="m.up"
       :down="m.down"
+      :ghosts="m.ghosts"
+      :show-trail="m.id === selectedId"
       @grab="(ev: PointerEvent) => onGrab(m.id, ev)"
       @open="emit('open', m.id)"
     />
