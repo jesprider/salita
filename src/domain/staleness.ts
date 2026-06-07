@@ -14,8 +14,7 @@ function parseLocalDateYmd(ymd: string): Date {
 export function daysSinceLastMove(lastMovedAt: string, today = new Date()): number {
   const moveDay = localDateString(new Date(lastMovedAt))
   const todayStr = localDateString(today)
-  const diff =
-    parseLocalDateYmd(todayStr).getTime() - parseLocalDateYmd(moveDay).getTime()
+  const diff = parseLocalDateYmd(todayStr).getTime() - parseLocalDateYmd(moveDay).getTime()
   return Math.max(0, Math.round(diff / MS_PER_DAY))
 }
 
