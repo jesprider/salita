@@ -74,6 +74,13 @@ describe('staleFillColor', () => {
     expect(staleFillColor(TERRACOTTA, isoOnLocalDay(2026, 6, 7), TODAY)).toBe(TERRACOTTA)
   })
 
+  it('returns an intermediate color for a partially stale dot', () => {
+    const color = staleFillColor(TERRACOTTA, isoOnLocalDay(2026, 6, 6), TODAY)
+    expect(color).not.toBe(TERRACOTTA)
+    expect(color).not.toBe(STALE_RED)
+    expect(color).toMatch(/^#[0-9A-F]{6}$/)
+  })
+
   it('returns STALE_RED after STALENESS_FULL_DAYS', () => {
     expect(staleFillColor(TERRACOTTA, isoOnLocalDay(2026, 6, 2), TODAY)).toBe(STALE_RED)
   })

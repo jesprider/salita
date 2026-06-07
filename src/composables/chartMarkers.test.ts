@@ -178,7 +178,7 @@ describe('markersForProject', () => {
             id: 'task_a',
             name: 'Task A',
             position: 40,
-            lastMovedAt: '',
+            lastMovedAt: new Date().toISOString(),
             forces: [],
             snapshots: [{ date: '2020-01-01', position: 22 }],
           },
