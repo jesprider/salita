@@ -9,7 +9,6 @@ export type { TrailGhost }
 export interface ChartMarker {
   id: string
   position: number
-  baseColor: string
   color: string
   radius: number
   name: string
@@ -29,31 +28,26 @@ export function activeCount(forces: Force[], direction: ForceDirection): number 
 
 export function overviewMarkers(projects: Project[]): ChartMarker[] {
   const today = localDateString()
-  return projects.map((p) => {
-    const baseColor = PALETTE[p.color]
-    return {
+  return projects.map((p) => ({
       id: p.id,
       position: p.position,
-      baseColor,
-      color: baseColor,
+      color: PALETTE[p.color],
       radius: OVERVIEW_RADIUS,
       name: p.name,
       up: activeCount(p.forces, 'up'),
       down: activeCount(p.forces, 'down'),
       stalenessSatellites: stalenessSatelliteCount(p.lastMovedAt, p.position),
       ghosts: trailGhosts(p.snapshots, today),
-    }
-  })
+    }))
 }
 
 export function markersForProject(project: Project): ChartMarker[] {
   const today = localDateString()
-  const baseColor = PALETTE[project.color]
+  const color = PALETTE[project.color]
   const projectMarker: ChartMarker = {
     id: project.id,
     position: project.position,
-    baseColor,
-    color: baseColor,
+    color,
     radius: PROJECT_RADIUS,
     name: project.name,
     up: activeCount(project.forces, 'up'),
@@ -64,8 +58,7 @@ export function markersForProject(project: Project): ChartMarker[] {
   const taskMarkers: ChartMarker[] = project.tasks.map((t) => ({
     id: t.id,
     position: t.position,
-    baseColor,
-    color: baseColor,
+    color,
     radius: TASK_RADIUS,
     name: t.name,
     up: activeCount(t.forces, 'up'),

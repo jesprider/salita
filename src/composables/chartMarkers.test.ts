@@ -90,11 +90,10 @@ describe('overviewMarkers', () => {
     })
   })
 
-  it('sets baseColor to palette and staleness satellites when stale', () => {
+  it('keeps palette color and sets staleness satellites when stale', () => {
     const oldMove = new Date()
     oldMove.setDate(oldMove.getDate() - 10)
     const markers = overviewMarkers([project({ lastMovedAt: oldMove.toISOString() })])
-    expect(markers[0].baseColor).toBe('#C56B4A')
     expect(markers[0].color).toBe('#C56B4A')
     expect(markers[0].stalenessSatellites).toBe(4)
   })
@@ -158,7 +157,6 @@ describe('markersForProject', () => {
     expect(markers[0]).toMatchObject({
       id: 'proj_1',
       radius: 22,
-      baseColor: '#C56B4A',
       color: '#C56B4A',
       up: 0,
       down: 0,
@@ -166,7 +164,6 @@ describe('markersForProject', () => {
     expect(markers[1]).toMatchObject({
       id: 'task_a',
       radius: 11,
-      baseColor: '#C56B4A',
       color: '#C56B4A',
       up: 0,
       down: 1,
