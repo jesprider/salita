@@ -23,6 +23,8 @@ code and implementation docs use the terms below.
 | **Snapshot / trail** | Historical positions for ghost markers on the chart. |
 | **Staleness satellite** | Small red marker orbiting a dot; one per day without movement (from day 2, max 4). Skipped at position 100 (done). |
 | **Days without movement** | Local calendar days since `lastMovedAt`; shown in the side panel. Grace day: moved yesterday → 0 satellites, panel may still show “1 day”. |
+| **Done stack** | Bottom-right column holding dots at position 100; collapsed chip(s) + "+ N more" when N≥2. |
+| **Un-done** | Drag a stack dot left onto the hill to move below 100. |
 
 ---
 
@@ -47,6 +49,9 @@ code and implementation docs use the terms below.
 | `findTrackableById` | Store module (private) | Helper inside `hillChart.ts`; finds `Project` or `Task` by id. Not a Pinia action. |
 | `selectedTrackableId` | UI state | Which trackable the side panel shows (project view). |
 | `resolveForce` / `unresolveForce` | Store (planned) | Force lifecycle only. |
+| `partitionMarkers` | Composable (`chartMarkers.ts`) | Splits markers into `active` (curve) and `done` (stack). |
+| `DoneStack.vue` | Component | Renders done dots; expand/collapse, click, drag. |
+| `allTasksDone` / `clampProjectDonePosition` | Domain (`doneRules.ts`) | Project cannot reach 100 until all tasks are at 100. |
 
 ---
 

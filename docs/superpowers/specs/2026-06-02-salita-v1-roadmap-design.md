@@ -32,7 +32,7 @@ whose status is `pending`** and work only that scope.
 9. Do **not** open a PR unless the user asks; commits authored as Roman only (no
    Co-Authored-By / Claude mentions), per prior iteration delivery notes.
 
-**Current codebase snapshot (after iteration 17):**
+**Current codebase snapshot (after iteration 18):**
 
 - Live: `/projects` overview, `/projects/:id` project view, draggable dots,
   `↑/↓` badges, double-click overview → drill-in, side panel, import/export,
@@ -43,7 +43,8 @@ whose status is `pending`** and work only that scope.
   movement from day 2, max 4); side panel shows days without movement; skipped at
   position 100. Ghost trails keep project color.
 - Peak: drag/slider clamp at 50 with active blockers; panel hint at peak.
-- Store: persist plugin; force mutations; done stack pending later iterations.
+- Done stack: bottom-right column for dots at position 100; collapsed chips + "+ N more" when N≥2; drag back onto hill to un-done.
+- Store: persist plugin; force mutations.
 
 ---
 
@@ -68,7 +69,7 @@ whose status is `pending`** and work only that scope.
 | 15 | trail-on-chart | **done** | M5 |
 | 16 | peak-crossing | **done** | M6 |
 | 17 | staleness-satellites | **done** | M6 |
-| 18 | done-stack | **pending** | M6 |
+| 18 | done-stack | **done** | M6 |
 | 19 | panel-sparkline-delete | **pending** | M6 |
 | 20 | landing-page | **pending** | M6 |
 
@@ -448,6 +449,7 @@ in the panel.
 | 15 | `docs/superpowers/specs/2026-06-07-salita-iteration-15-trail-on-chart-design.md` |
 | 16 | `docs/superpowers/specs/2026-06-07-salita-iteration-16-peak-crossing-design.md` |
 | 17 | `docs/superpowers/specs/2026-06-07-salita-iteration-17-staleness-design.md` |
+| 18 | `docs/superpowers/specs/2026-06-07-salita-iteration-18-done-stack-design.md` |
 
 ---
 
