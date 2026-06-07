@@ -89,7 +89,7 @@ onBeforeUnmount(onUp)
         v-if="m.id === selectedId"
         :ghosts="m.ghosts"
         :radius="m.radius"
-        :color="m.baseColor"
+        :color="m.color"
       />
       <MarkerChart
         :cx="curveX(m.position)"

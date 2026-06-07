@@ -115,8 +115,7 @@ when result ≥ 1.
 export interface ChartMarker {
   id: string
   position: number
-  baseColor: string   // palette hex — for ghost trails
-  color: string       // same as baseColor — main dot fill
+  color: string       // project palette hex — main dot and ghost trail
   radius: number
   name: string
   up: number
@@ -141,8 +140,8 @@ export interface ChartMarker {
 
 ### 5.2 `HillChart.vue`
 
-- `MarkerTrail` → `m.baseColor`
-- `MarkerChart` → `m.color`, `:staleness-satellites="m.stalenessSatellites"`
+- `MarkerTrail` and `MarkerChart` → `m.color` (project palette)
+- `MarkerChart` also receives `:staleness-satellites="m.stalenessSatellites"`
 
 ### 5.3 `SidePanel.vue`
 
