@@ -65,6 +65,7 @@ function onAddTask() {
         <HillChart
           v-if="project"
           :markers="markers"
+          :selected-id="selectedTrackableId"
           clickable
           @move="onMove"
           @click="onTrackableClick"
