@@ -1,13 +1,14 @@
-# Salita — Iteration 17: Staleness reddening (design)
+# Salita — Iteration 17: Staleness satellites (design)
 
 **Date:** 2026-06-07  
-**Status:** Approved  
-**Parent spec:** `docs/salita-design-spec.md` (§5.8 staleness reddening)  
+**Status:** Approved (amended during implementation — satellites replace color lerp)  
+**Parent spec:** `docs/salita-design-spec.md` (§5.8 staleness satellites)  
 **Roadmap:** `docs/superpowers/specs/2026-06-02-salita-v1-roadmap-design.md` (iteration 17)  
 **Builds on:** iteration 15 (ghost trails), iteration 16 (`lastMovedAt` only bumps on real moves)
 
-Dots that have not moved in several days visually age: live marker fill lerps from the
-project palette color toward `#C04A2D`. Ghost trails keep the raw project color.
+Dots that have not moved recently show small red **staleness satellites** on the
+upper arc of the main marker. The side panel states how many days without movement.
+Main dot fill stays the project color.
 
 ---
 
@@ -15,35 +16,38 @@ project palette color toward `#C04A2D`. Ghost trails keep the raw project color.
 
 After this iteration:
 
-- **Live dot fill** — each project (overview) and project/task dot (project view) uses
-  `staleFillColor(projectColor, lastMovedAt)` instead of raw palette hex.
-- **Staleness formula** — `daysSinceLastMove` in **local calendar days**;
-  `staleness = min(daysSinceLastMove / 5, 1)`; fill = lerp(projectColor, `#C04A2D`,
-  staleness). At 5+ days, fully stale red.
-- **Ghost trails** — `MarkerTrail` continues to use **project palette color** (not
-  staleness-adjusted); only the current dot reddens.
+- **Staleness satellites** — small `#C04A2D` circles on the upper arc of each live
+  dot (projects on overview; project + tasks on project view). One satellite per
+  day without movement, starting on **day 2**, max **4**, placed left → right along
+  the arc.
+- **Grace day** — moved yesterday → 0 satellites (no visual alarm yet).
+- **Side panel** — when `daysSinceLastMove ≥ 1`, show “N day(s) without movement”
+  in the Position section.
+- **Done skip** — at `position === 100`, no satellites and no panel note.
+- **Ghost trails** — project palette color only; satellites apply to the live dot.
 - **Recompute trigger** — when marker models rebuild (store change, navigation, page
-  load). **No midnight timer** (same as iteration 14 End daily decision).
-- **Vitest** — unit tests on calendar-day math, ratio cap, and hex lerp.
+  load). No midnight timer.
+- **Vitest** — calendar-day math, satellite count, done skip, panel day helper.
 
-**Out of scope:** Side-panel “last moved” copy; staleness on ghost dots; midnight
-auto-refresh; changing when `lastMovedAt` is written (store behavior unchanged).
+**Out of scope:** Changing when `lastMovedAt` is written; staleness on ghost dots;
+midnight auto-refresh.
 
 ---
 
-## 2. Decisions (brainstorm lock-in)
+## 2. Decisions (brainstorm + implementation lock-in)
 
 | Topic | Decision |
 |-------|----------|
-| Architecture | **Pure domain helpers** (approach A) — pre-compute fill in `chartMarkers.ts` |
-| Ghost trail color | **Project palette only** — staleness applies to live dot only |
-| Staleness refresh | **On marker rebuild** — no timer; overnight aging visible after refresh or any store update |
-| Calendar days | **Local timezone** — reuse `localDateString` from `src/lib/localDate.ts` |
-| Same calendar day as move | **0 days** — full project color (staleness 0) |
-| Per-dot `lastMovedAt` | **Each trackable independently** — tasks can redden while project dot stays fresh |
-| Trail vs live color split | **`baseColor` + `color` on `ChartMarker`** — trail reads `baseColor`, marker reads `color` |
-| Stale target color | **`#C04A2D`** — matches `--color-stale-red` / parent spec `stale-red` token |
-| sRGB lerp | **Channel-wise sRGB lerp** — sufficient for v1 visual; no gamma correction |
+| Visual model | **Satellites** — not fill reddening / lerp (original spec amended) |
+| Satellite meaning | **One per day without movement**, from day 2, max 4 |
+| Grace day | **Moved yesterday → 0 satellites** |
+| Placement | **Upper arc**, evenly spaced slots left → right |
+| Main dot color | **Project palette** — unchanged |
+| Ghost trail color | **Project palette only** |
+| Done at 100 | **Skip** satellites and panel note |
+| Panel copy | **“N day(s) without movement”** when days ≥ 1 |
+| Architecture | **Pure domain helpers** in `staleness.ts`; pre-compute in `chartMarkers.ts` |
+| Recompute | **On marker rebuild** — no timer |
 
 ---
 
@@ -53,151 +57,131 @@ auto-refresh; changing when `lastMovedAt` is written (store behavior unchanged).
 
 ```ts
 export const STALE_RED = '#C04A2D'
-export const STALENESS_FULL_DAYS = 5
+export const STALENESS_MAX_SATELLITES = 4
+export const STALENESS_SATELLITE_START_DAY = 2
+export const DONE_POSITION = 100
 ```
 
 ### 3.2 Calendar-day difference
 
 ```ts
-/** Local calendar days from lastMovedAt's day through today (inclusive of today as 0). */
 export function daysSinceLastMove(lastMovedAt: string, today = new Date()): number
 ```
 
-Algorithm:
+Local calendar days from `lastMovedAt`'s day through today (today = 0). Uses
+`localDateString` from `src/lib/localDate.ts`.
 
-1. `moveDay = localDateString(new Date(lastMovedAt))`
-2. `todayStr = localDateString(today)`
-3. Parse both `YYYY-MM-DD` strings as local midnight `Date` objects.
-4. `days = round((todayMidnight - moveMidnight) / 86400000)`
-5. Return `max(0, days)`.
-
-Examples (local timezone):
-
-| lastMovedAt (local day) | today (local) | days |
-|-------------------------|---------------|------|
-| today, any time | today | 0 |
-| yesterday | today | 1 |
-| 5 days ago | today | 5 |
-| 10 days ago | today | 10 (ratio still caps at 1) |
-
-Uses existing `localDateString` — consistent with End daily and trail snapshot dates.
-
-### 3.3 Staleness ratio
+### 3.3 Satellite count
 
 ```ts
-export function stalenessRatio(daysSinceLastMove: number): number {
-  return Math.min(Math.max(0, daysSinceLastMove) / STALENESS_FULL_DAYS, 1)
-}
-```
-
-### 3.4 Color lerp
-
-```ts
-/** sRGB lerp between two #RRGGBB hex colors; t clamped to [0, 1]. */
-export function lerpHexColor(from: string, to: string, t: number): string
-
-export function staleFillColor(
-  projectColorHex: string,
+export function stalenessSatelliteCount(
   lastMovedAt: string,
+  position: number,
   today = new Date(),
-): string
+): number
 ```
 
-`staleFillColor`: if `stalenessRatio === 0`, return `projectColorHex` unchanged; else
-`lerpHexColor(projectColorHex, STALE_RED, ratio)`.
+- If `position === DONE_POSITION` → **0**
+- If `daysSinceLastMove < STALENESS_SATELLITE_START_DAY` → **0**
+- Else → `min(daysSinceLastMove - 1, STALENESS_MAX_SATELLITES)`
+
+| Days since move | Satellites |
+|-----------------|------------|
+| 0 (today) | 0 |
+| 1 (yesterday) | 0 |
+| 2 | 1 |
+| 3 | 2 |
+| 4 | 3 |
+| 5+ | 4 |
+
+### 3.4 Panel copy helper
+
+```ts
+export function daysWithoutMovement(
+  lastMovedAt: string,
+  position: number,
+  today = new Date(),
+): number
+```
+
+Returns **0** at `DONE_POSITION`; otherwise `daysSinceLastMove`. Panel shows copy
+when result ≥ 1.
 
 ---
 
 ## 4. Marker models: `src/composables/chartMarkers.ts`
-
-Extend `ChartMarker`:
 
 ```ts
 export interface ChartMarker {
   id: string
   position: number
   baseColor: string   // palette hex — for ghost trails
-  color: string       // stale-adjusted fill — for live dot
+  color: string       // same as baseColor — main dot fill
   radius: number
   name: string
   up: number
   down: number
+  stalenessSatellites: number
   ghosts: TrailGhost[]
 }
 ```
 
-In `overviewMarkers` and `markersForProject`:
-
-```ts
-const baseColor = PALETTE[p.color] // or project.color in project view
-color: staleFillColor(baseColor, trackable.lastMovedAt),
-baseColor,
-```
-
-Tasks inherit the project's palette `baseColor` but compute `color` from **task**
-`lastMovedAt` (may differ from project dot).
+`stalenessSatellites: stalenessSatelliteCount(lastMovedAt, position)` per trackable.
 
 ---
 
-## 5. Rendering: `src/components/HillChart.vue`
+## 5. Rendering
 
-Split trail vs live dot colors:
+### 5.1 `MarkerChart.vue`
 
-```vue
-<MarkerTrail :color="m.baseColor" ... />
-<MarkerChart :color="m.color" ... />
-```
+- Props include `stalenessSatellites: number`.
+- Draw main dot at `color` (project palette).
+- Draw `stalenessSatellites` small circles on the upper arc (`STALE_RED`), using
+  evenly spaced slot angles left → right (max 4 slots).
 
-`MarkerChart.vue` and `MarkerTrail.vue` unchanged — they already accept a resolved hex
-`color` string.
+### 5.2 `HillChart.vue`
+
+- `MarkerTrail` → `m.baseColor`
+- `MarkerChart` → `m.color`, `:staleness-satellites="m.stalenessSatellites"`
+
+### 5.3 `SidePanel.vue`
+
+In Position section, after slider:
+
+- `daysWithoutMovement(lastMovedAt, position)` → label when ≥ 1
+- “1 day without movement” / “N days without movement”
 
 ---
 
 ## 6. Data flow
 
-1. Store holds `lastMovedAt` on each trackable (updated only on real position changes).
-2. View passes projects / project into `overviewMarkers` / `markersForProject`.
-3. Each marker gets `baseColor` (palette) and `color` (stale-adjusted).
-4. User drags dot → `setPosition` → `lastMovedAt` now → markers rebuild → dot returns
-   to fresh project color.
-5. User leaves tab open overnight → colors unchanged until refresh or store mutation.
-6. Selected dot's ghost trail renders with `baseColor` at trail opacities — visually
-   distinct from stale live dot when both are shown.
+1. Store holds `lastMovedAt` on each trackable.
+2. `overviewMarkers` / `markersForProject` compute `stalenessSatellites`.
+3. User drags dot → `setPosition` → `lastMovedAt` now → satellites clear.
+4. User selects dot at 100 → no satellites, no panel staleness line.
 
 ---
 
 ## 7. Tests
 
-### 7.1 `src/domain/staleness.test.ts` (new)
+### 7.1 `src/domain/staleness.test.ts`
 
-Use injectable `today` for deterministic cases.
+- Calendar-day diff edge cases
+- Satellite count: grace day, 2→1, cap at 4, skip at position 100
+- `daysWithoutMovement` skip at 100
 
-| Case | lastMovedAt | today | Expect |
-|------|-------------|-------|--------|
-| Moved today | same local day | fixed | days **0**, ratio **0**, color **unchanged** |
-| One day | previous local day | fixed | days **1**, ratio **0.2** |
-| Five days | 5 days before | fixed | ratio **1**, color **STALE_RED** |
-| Ten days | 10 days before | fixed | ratio **1** (capped) |
-| Lerp midpoint | 2.5 days equivalent | — | color between project and stale |
-| Future lastMovedAt | tomorrow | fixed today | days **0** (clamped) |
+### 7.2 `src/composables/chartMarkers.test.ts`
 
-Include at least one case with terracotta `#C56B4A` → verify output is valid `#RRGGBB`.
-
-### 7.2 `src/composables/chartMarkers.test.ts` (update)
-
-- Set fixture `lastMovedAt` to **today's** ISO string (or pass a date that yields
-  staleness 0) so existing color assertions still expect `#C56B4A`.
-- Add one test: old `lastMovedAt` (5+ local days before a fixed `today` injected via
-  domain helper in isolation, or by setting a known-old date and asserting `color !==
-  baseColor` when days ≥ 5 — prefer testing staleness in domain tests; chartMarkers
-  test only verifies `baseColor` is raw palette and `color` calls through).
+- Fresh `lastMovedAt` → 0 satellites
+- Old `lastMovedAt` → 4 satellites
+- Position 100 → 0 satellites
 
 ### 7.3 Manual verification
 
-- [ ] Sample data with varied `lastMovedAt` dates shows gradient of reddening on chart.
-- [ ] Drag a stale dot → immediately returns to project color.
-- [ ] Select dot with trail → ghosts stay project color; live dot may be red.
-- [ ] Task stale, project fresh (or vice versa) on same project view chart.
+- [ ] Grace day: moved yesterday → no satellites; panel shows “1 day”
+- [ ] 2+ days → satellites appear left → right on upper arc
+- [ ] Done dot at 100 → no satellites or panel note
+- [ ] Drag stale dot → satellites disappear
 - [ ] `npm run lint && npm run test && npm run build`
 
 ---
@@ -206,22 +190,21 @@ Include at least one case with terracotta `#C56B4A` → verify output is valid `
 
 | File | Change |
 |------|--------|
-| `src/domain/staleness.ts` | **New** — day math, ratio, lerp, `staleFillColor` |
-| `src/domain/staleness.test.ts` | **New** — domain unit tests |
-| `src/composables/chartMarkers.ts` | `baseColor` + stale `color` on markers |
-| `src/composables/chartMarkers.test.ts` | Fixture dates; optional baseColor assertion |
-| `src/components/HillChart.vue` | Trail uses `m.baseColor`, marker uses `m.color` |
-| `docs/superpowers/specs/2026-06-02-salita-v1-roadmap-design.md` | Mark iteration 17 **done** + link this doc when implementation ships |
-
-**No changes:** store, schema, `MarkerChart.vue`, `MarkerTrail.vue`, side panel.
+| `src/domain/staleness.ts` | Day math, satellite count, panel helper |
+| `src/domain/staleness.test.ts` | Domain unit tests |
+| `src/composables/chartMarkers.ts` | `stalenessSatellites` on `ChartMarker` |
+| `src/composables/chartMarkers.test.ts` | Satellite assertions |
+| `src/components/MarkerChart.vue` | Render satellites on upper arc |
+| `src/components/HillChart.vue` | Pass `stalenessSatellites` prop |
+| `src/components/SidePanel.vue` | Days-without-movement copy |
+| `docs/domain-vocabulary.md` | Staleness satellite terms |
+| `docs/salita-design-spec.md` | §5.8, checklist item 30 |
 
 ---
 
 ## 9. Spec self-review
 
-- [x] No TBD placeholders.
-- [x] Ghost trail decision (A) documented — `baseColor` split prevents accidental trail reddening.
-- [x] Calendar-day math aligned with `localDateString` used elsewhere.
-- [x] No timer — consistent with brainstorm lock-in and iteration 14 pattern.
-- [x] `lastMovedAt` semantics unchanged from iteration 16 (no bump on failed peak drag).
-- [x] Scope fits a single implementation plan; no iteration 18+ pull-forward.
+- [x] Reflects shipped satellite model (not color lerp).
+- [x] Grace day, max 4, done skip, panel copy documented.
+- [x] Ghost trails unchanged.
+- [x] Vocabulary aligned with `docs/domain-vocabulary.md`.

@@ -161,7 +161,7 @@ Deferred to later iterations (all specified in the parent spec):
 - Side panel; force add / edit / resolve UX.
 - `+ Task` / `+ Project` manual creation UI.
 - Snapshots, "End daily", position trail.
-- Staleness reddening.
+- Staleness satellites.
 - Done-dot stacking column.
 - Peak-crossing auto-resolve of forces.
 - Import / Export / Clean.

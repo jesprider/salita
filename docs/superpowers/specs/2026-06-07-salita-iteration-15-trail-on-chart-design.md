@@ -26,7 +26,7 @@ After this iteration:
   fill-only feel; no labels or force badges on ghosts.
 - **No connecting line** between ghosts (parent spec open question #4 default).
 
-**Out of scope:** Side-panel sparkline (iteration 19); staleness reddening
+**Out of scope:** Side-panel sparkline (iteration 19); staleness satellites
 (iteration 17); done stack (iteration 18); peak clamp (iteration 16); store changes.
 
 **Parent spec deviation:** §5.7 specifies last **10** snapshots always visible;

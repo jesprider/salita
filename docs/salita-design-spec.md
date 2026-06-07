@@ -121,7 +121,7 @@ Full glossary: [`docs/domain-vocabulary.md`](domain-vocabulary.md).
 
 - `position` — integer 0–100.
 - `color` — one of 8 named warm tones (terracotta, mustard, olive, rust, plum, sage, dusty-blue, warm-pink). Auto-assigned at creation, round-robin from the palette.
-- `lastMovedAt` — set on every position change. Powers the staleness reddening.
+- `lastMovedAt` — set on every position change. Powers staleness satellites and the side-panel “days without movement” note.
 - `source` — **optional** object describing where this dot came from in an external project-management tool. All sub-fields optional:
   - `source.system` — free-text identifier of the tracker (e.g. `"jira"`, `"linear"`, `"asana"`, `"github"`, `"monday"`, `"clickup"`, `"trello"`). Used to render an appropriate icon next to the link if known, otherwise falls back to a generic link icon.
   - `source.id` — the item's human-readable identifier in that system (e.g. `"MOB-101"`, `"ENG-205"`, `"owner/repo#42"`).
@@ -240,11 +240,17 @@ The workflow for "I want to add more from my tracker after first import": Export
 - Oldest at ~10% opacity, newest (still historical) at ~70%, current dot at 100%.
 - Older snapshots stay in storage and surface in the side panel sparkline.
 
-### 5.8 Staleness reddening
+### 5.8 Staleness satellites
 
-- `daysSinceLastMove = (today - lastMovedAt) in calendar days`
-- `staleness = min(daysSinceLastMove / 5, 1)`
-- Dot fill = lerp(projectColor, #C04A2D, staleness). At 5+ days, fully red.
+Dots that have not moved recently show small **staleness satellites** — red circles on the upper arc of the main marker (`#C04A2D`). The main dot keeps its project color.
+
+- `daysSinceLastMove = (today − lastMovedAt) in local calendar days`
+- **Grace day:** moved yesterday → 0 satellites (no alarm yet)
+- **From day 2:** one satellite per day without movement, left to right along the upper arc, **max 4**
+- **Done dots** (`position === 100`): no satellites, no panel note
+- **Side panel:** when `daysSinceLastMove ≥ 1`, show “N day(s) without movement” in the Position section
+- Ghost trails keep project palette color; satellites apply to the live dot only
+- Recompute on marker rebuild (store change, navigation, refresh); no midnight timer
 
 ---
 
@@ -257,7 +263,7 @@ The workflow for "I want to add more from my tracker after first import": Export
 - `text-warm` `#3C3530` — primary text.
 - Project palette (8): `terracotta` `#C56B4A`, `mustard` `#D9A441`, `olive` `#7A8A4F`, `rust` `#A8472B`, `plum` `#7C4A6A`, `sage` `#8DA77A`, `dusty-blue` `#6D8AA0`, `warm-pink` `#D49584`.
 - `force-up` `#8DA77A` (sage), `force-down` `#C04A2D` (clay red), `force-past` `#A39B92` (muted warm grey).
-- `stale-red` `#C04A2D` — staleness target color.
+- `stale-red` `#C04A2D` — staleness satellite fill color.
 
 **Typography:**
 
@@ -494,7 +500,7 @@ Captured during the design interview so future-you can see the reasoning:
 27. Dots draggable on both overview and project view.
 28. Assignee optional at manual creation; placeholder primary force is set automatically.
 29. Trail length on chart = last 10; full history in side panel.
-30. Staleness reddening: linear over 5 calendar days since last position change.
+30. Staleness satellites: one red dot per day without movement from day 2, max 4; panel shows days without movement; skipped at position 100.
 31. Done dots stack into a column with "+ N more" badge.
 32. Display during daily = ordinary screen-share; no dedicated presentation mode in v1.
 33. Hosted on Cloudflare Pages: public GitHub repo, auto-deploy on `main`, preview deploys per branch, SPA fallback via a `public/_redirects` file. Custom domain and analytics deferred.
