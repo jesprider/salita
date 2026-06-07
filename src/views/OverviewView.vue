@@ -217,6 +217,7 @@ async function onDrop(ev: DragEvent) {
         <HillChart
           clickable
           :markers="markers"
+          :selected-id="selectedTrackableId"
           @move="onMove"
           @open="onOpen"
           @click="onTrackableClick"
