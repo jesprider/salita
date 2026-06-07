@@ -94,9 +94,7 @@ describe('overviewMarkers', () => {
   it('sets baseColor to palette and color to stale-adjusted fill', () => {
     const oldMove = new Date()
     oldMove.setDate(oldMove.getDate() - 10)
-    const markers = overviewMarkers([
-      project({ lastMovedAt: oldMove.toISOString() }),
-    ])
+    const markers = overviewMarkers([project({ lastMovedAt: oldMove.toISOString() })])
     expect(markers[0].baseColor).toBe('#C56B4A')
     expect(markers[0].color).toBe(STALE_RED)
   })
