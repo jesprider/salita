@@ -20,17 +20,21 @@ const emit = defineEmits<{
 
 const satelliteRadius = computed(() => Math.max(3, Math.round(props.radius * 0.22)))
 
+/** Evenly spaced upper-arc slots (left → right); count uses the first N. */
+const ARC_START = (-4 * Math.PI) / 5
+const ARC_END = -Math.PI / 5
+const SATELLITE_ARC_ANGLES = Array.from({ length: 4 }, (_, i) =>
+  ARC_START + (i / 3) * (ARC_END - ARC_START),
+)
+
 const satelliteCoords = computed(() => {
   const count = props.stalenessSatellites
   if (count === 0) return []
 
   const orbit = props.radius + satelliteRadius.value + 2
-  const startAngle = -Math.PI * 0.75
-  const endAngle = -Math.PI * 0.25
 
   return Array.from({ length: count }, (_, i) => {
-    const t = count === 1 ? 0.5 : i / (count - 1)
-    const angle = startAngle + t * (endAngle - startAngle)
+    const angle = SATELLITE_ARC_ANGLES[i]
     return {
       cx: props.cx + orbit * Math.cos(angle),
       cy: props.cy + orbit * Math.sin(angle),
