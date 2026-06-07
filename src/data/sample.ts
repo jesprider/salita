@@ -1,4 +1,28 @@
-import type { HillChartState } from '../schema/types'
+import { localDateString } from '../lib/localDate'
+import type { HillChartState, Snapshot } from '../schema/types'
+
+/** ISO timestamp for N local calendar days before today. */
+function isoDaysAgo(days: number, hour = 10): string {
+  const d = new Date()
+  d.setDate(d.getDate() - days)
+  d.setHours(hour, 0, 0, 0)
+  return d.toISOString()
+}
+
+/** YYYY-MM-DD for N local calendar days before today. */
+function dateDaysAgo(days: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() - days)
+  return localDateString(d)
+}
+
+/** Snapshot history ending yesterday — powers ghost trails when a dot is selected. */
+function trailSnapshots(positions: number[]): Snapshot[] {
+  return positions.map((position, i) => ({
+    date: dateDaysAgo(positions.length - i),
+    position,
+  }))
+}
 
 export const sampleState: HillChartState = {
   version: 1,
@@ -15,8 +39,8 @@ export const sampleState: HillChartState = {
         id: 'MOB-101',
         url: 'https://example.atlassian.net/browse/MOB-101',
       },
-      position: 23,
-      lastMovedAt: '2026-05-24T10:00:00Z',
+      position: 50,
+      lastMovedAt: isoDaysAgo(3),
       forces: [
         {
           id: 'f_1a',
@@ -25,7 +49,7 @@ export const sampleState: HillChartState = {
           owner: 'Alex',
           isPrimary: true,
           status: 'active',
-          createdAt: '2026-05-01T10:00:00Z',
+          createdAt: isoDaysAgo(30),
           resolvedAt: null,
           resolutionReason: null,
         },
@@ -36,23 +60,34 @@ export const sampleState: HillChartState = {
           owner: 'Priya',
           isPrimary: false,
           status: 'active',
-          createdAt: '2026-05-20T10:00:00Z',
+          createdAt: isoDaysAgo(12),
           resolvedAt: null,
           resolutionReason: null,
         },
         {
           id: 'f_1c',
           direction: 'down',
-          label: 'Waiting on Q2 budget approval',
+          label: 'Security review pending',
           owner: null,
           isPrimary: false,
           status: 'active',
-          createdAt: '2026-05-15T10:00:00Z',
+          createdAt: isoDaysAgo(5),
           resolvedAt: null,
           resolutionReason: null,
         },
+        {
+          id: 'f_1d',
+          direction: 'down',
+          label: 'Q2 budget approval',
+          owner: null,
+          isPrimary: false,
+          status: 'resolved',
+          createdAt: isoDaysAgo(20),
+          resolvedAt: isoDaysAgo(8),
+          resolutionReason: 'Approved in finance sync',
+        },
       ],
-      snapshots: [],
+      snapshots: trailSnapshots([18, 24, 30, 36, 42, 46, 49]),
       tasks: [
         {
           id: 'task_1a',
@@ -62,8 +97,8 @@ export const sampleState: HillChartState = {
             id: 'MOB-205',
             url: 'https://example.atlassian.net/browse/MOB-205',
           },
-          position: 12,
-          lastMovedAt: '2026-05-24T10:00:00Z',
+          position: 28,
+          lastMovedAt: isoDaysAgo(0),
           forces: [
             {
               id: 'f_1a_owner',
@@ -72,7 +107,7 @@ export const sampleState: HillChartState = {
               owner: 'Priya',
               isPrimary: true,
               status: 'active',
-              createdAt: '2026-05-02T10:00:00Z',
+              createdAt: isoDaysAgo(25),
               resolvedAt: null,
               resolutionReason: null,
             },
@@ -83,18 +118,18 @@ export const sampleState: HillChartState = {
               owner: null,
               isPrimary: false,
               status: 'active',
-              createdAt: '2026-05-21T10:00:00Z',
+              createdAt: isoDaysAgo(4),
               resolvedAt: null,
               resolutionReason: null,
             },
           ],
-          snapshots: [],
+          snapshots: trailSnapshots([10, 14, 18, 22, 26]),
         },
         {
           id: 'task_1b',
           name: 'Redesign settings screen',
           position: 41,
-          lastMovedAt: '2026-05-25T10:00:00Z',
+          lastMovedAt: isoDaysAgo(1),
           forces: [
             {
               id: 'f_1b_owner',
@@ -103,7 +138,7 @@ export const sampleState: HillChartState = {
               owner: 'Alex',
               isPrimary: true,
               status: 'active',
-              createdAt: '2026-05-03T10:00:00Z',
+              createdAt: isoDaysAgo(22),
               resolvedAt: null,
               resolutionReason: null,
             },
@@ -114,7 +149,7 @@ export const sampleState: HillChartState = {
               owner: 'Priya',
               isPrimary: false,
               status: 'active',
-              createdAt: '2026-05-22T10:00:00Z',
+              createdAt: isoDaysAgo(6),
               resolvedAt: null,
               resolutionReason: null,
             },
@@ -124,8 +159,8 @@ export const sampleState: HillChartState = {
         {
           id: 'task_1c',
           name: 'Migrate to new navigation',
-          position: 74,
-          lastMovedAt: '2026-05-26T10:00:00Z',
+          position: 62,
+          lastMovedAt: isoDaysAgo(0),
           forces: [
             {
               id: 'f_1c_owner',
@@ -134,12 +169,23 @@ export const sampleState: HillChartState = {
               owner: 'Sam',
               isPrimary: true,
               status: 'active',
-              createdAt: '2026-05-06T10:00:00Z',
+              createdAt: isoDaysAgo(18),
+              resolvedAt: null,
+              resolutionReason: null,
+            },
+            {
+              id: 'f_1c_block',
+              direction: 'down',
+              label: 'Legacy nav still in prod',
+              owner: null,
+              isPrimary: false,
+              status: 'active',
+              createdAt: isoDaysAgo(2),
               resolvedAt: null,
               resolutionReason: null,
             },
           ],
-          snapshots: [],
+          snapshots: trailSnapshots([48, 52, 56, 60]),
         },
       ],
     },
@@ -147,8 +193,8 @@ export const sampleState: HillChartState = {
       id: 'proj_2',
       name: 'Billing migration',
       color: 'olive',
-      position: 47,
-      lastMovedAt: '2026-05-26T10:00:00Z',
+      position: 72,
+      lastMovedAt: isoDaysAgo(0),
       forces: [
         {
           id: 'f_2a',
@@ -157,40 +203,40 @@ export const sampleState: HillChartState = {
           owner: 'Sam',
           isPrimary: true,
           status: 'active',
-          createdAt: '2026-05-05T10:00:00Z',
+          createdAt: isoDaysAgo(40),
           resolvedAt: null,
           resolutionReason: null,
         },
         {
           id: 'f_2b',
           direction: 'down',
-          label: 'DB schema still unclear',
+          label: 'Vendor API is flaky',
           owner: null,
           isPrimary: false,
           status: 'active',
-          createdAt: '2026-05-18T10:00:00Z',
+          createdAt: isoDaysAgo(7),
           resolvedAt: null,
           resolutionReason: null,
         },
         {
           id: 'f_2c',
           direction: 'down',
-          label: 'Vendor API is flaky',
+          label: 'DB schema still unclear',
           owner: null,
           isPrimary: false,
-          status: 'active',
-          createdAt: '2026-05-22T10:00:00Z',
-          resolvedAt: null,
-          resolutionReason: null,
+          status: 'resolved',
+          createdAt: isoDaysAgo(15),
+          resolvedAt: isoDaysAgo(3),
+          resolutionReason: 'Schema signed off in architecture review',
         },
       ],
-      snapshots: [],
+      snapshots: trailSnapshots([40, 48, 55, 62, 68, 72]),
       tasks: [
         {
           id: 'task_2a',
           name: 'Schema design',
           position: 30,
-          lastMovedAt: '2026-05-26T10:00:00Z',
+          lastMovedAt: isoDaysAgo(2),
           forces: [
             {
               id: 'f_2a_owner',
@@ -199,29 +245,18 @@ export const sampleState: HillChartState = {
               owner: 'Sam',
               isPrimary: true,
               status: 'active',
-              createdAt: '2026-05-06T10:00:00Z',
-              resolvedAt: null,
-              resolutionReason: null,
-            },
-            {
-              id: 'f_2a_block',
-              direction: 'down',
-              label: 'DB schema still unclear',
-              owner: null,
-              isPrimary: false,
-              status: 'active',
-              createdAt: '2026-05-18T10:00:00Z',
+              createdAt: isoDaysAgo(35),
               resolvedAt: null,
               resolutionReason: null,
             },
           ],
-          snapshots: [],
+          snapshots: trailSnapshots([12, 18, 24, 28]),
         },
         {
           id: 'task_2b',
           name: 'Data backfill script',
           position: 6,
-          lastMovedAt: '2026-05-23T10:00:00Z',
+          lastMovedAt: isoDaysAgo(9),
           forces: [
             {
               id: 'f_2b_owner',
@@ -230,7 +265,7 @@ export const sampleState: HillChartState = {
               owner: 'Lena',
               isPrimary: true,
               status: 'active',
-              createdAt: '2026-05-09T10:00:00Z',
+              createdAt: isoDaysAgo(28),
               resolvedAt: null,
               resolutionReason: null,
             },
@@ -243,8 +278,13 @@ export const sampleState: HillChartState = {
       id: 'proj_3',
       name: 'Docs revamp',
       color: 'dusty-blue',
+      source: {
+        system: 'github',
+        id: 'acme/docs#42',
+        url: 'https://github.com/acme/docs/issues/42',
+      },
       position: 68,
-      lastMovedAt: '2026-05-25T10:00:00Z',
+      lastMovedAt: isoDaysAgo(0),
       forces: [
         {
           id: 'f_3a',
@@ -253,12 +293,23 @@ export const sampleState: HillChartState = {
           owner: 'Lena',
           isPrimary: true,
           status: 'active',
-          createdAt: '2026-05-10T10:00:00Z',
+          createdAt: isoDaysAgo(20),
+          resolvedAt: null,
+          resolutionReason: null,
+        },
+        {
+          id: 'f_3b',
+          direction: 'up',
+          label: 'Copy review from support',
+          owner: 'Dana',
+          isPrimary: false,
+          status: 'active',
+          createdAt: isoDaysAgo(5),
           resolvedAt: null,
           resolutionReason: null,
         },
       ],
-      snapshots: [],
+      snapshots: trailSnapshots([50, 55, 60, 65, 68]),
       tasks: [],
     },
     {
@@ -266,7 +317,7 @@ export const sampleState: HillChartState = {
       name: 'Search relevance',
       color: 'plum',
       position: 8,
-      lastMovedAt: '2026-05-21T10:00:00Z',
+      lastMovedAt: isoDaysAgo(7),
       forces: [
         {
           id: 'f_4a',
@@ -275,7 +326,7 @@ export const sampleState: HillChartState = {
           owner: 'Dana',
           isPrimary: true,
           status: 'active',
-          createdAt: '2026-05-12T10:00:00Z',
+          createdAt: isoDaysAgo(45),
           resolvedAt: null,
           resolutionReason: null,
         },
@@ -286,7 +337,7 @@ export const sampleState: HillChartState = {
           owner: 'Omar',
           isPrimary: false,
           status: 'active',
-          createdAt: '2026-05-19T10:00:00Z',
+          createdAt: isoDaysAgo(10),
           resolvedAt: null,
           resolutionReason: null,
         },
@@ -297,7 +348,7 @@ export const sampleState: HillChartState = {
           owner: null,
           isPrimary: false,
           status: 'active',
-          createdAt: '2026-05-20T10:00:00Z',
+          createdAt: isoDaysAgo(14),
           resolvedAt: null,
           resolutionReason: null,
         },
@@ -307,13 +358,40 @@ export const sampleState: HillChartState = {
           label: 'Infra capacity uncertain',
           owner: null,
           isPrimary: false,
+          status: 'resolved',
+          createdAt: isoDaysAgo(21),
+          resolvedAt: isoDaysAgo(9),
+          resolutionReason: 'Capacity reserved for Q3',
+        },
+      ],
+      snapshots: [],
+      tasks: [],
+    },
+    {
+      id: 'proj_5',
+      name: 'Analytics dashboard',
+      color: 'mustard',
+      source: {
+        system: 'linear',
+        id: 'DATA-88',
+        url: 'https://linear.app/example/issue/DATA-88',
+      },
+      position: 100,
+      lastMovedAt: isoDaysAgo(12),
+      forces: [
+        {
+          id: 'f_5a',
+          direction: 'up',
+          label: 'Owner',
+          owner: 'Omar',
+          isPrimary: true,
           status: 'active',
-          createdAt: '2026-05-23T10:00:00Z',
+          createdAt: isoDaysAgo(60),
           resolvedAt: null,
           resolutionReason: null,
         },
       ],
-      snapshots: [],
+      snapshots: trailSnapshots([70, 78, 85, 92, 97, 100]),
       tasks: [],
     },
   ],
