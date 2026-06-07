@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { Project } from '../schema/types'
+import { STALE_RED } from '../domain/staleness'
 import { activeCount, overviewMarkers, markersForProject } from './chartMarkers'
 
 function project(overrides: Partial<Project> = {}): Project {
@@ -8,7 +9,7 @@ function project(overrides: Partial<Project> = {}): Project {
     name: 'Alpha',
     color: 'terracotta',
     position: 30,
-    lastMovedAt: '2026-05-01T10:00:00Z',
+    lastMovedAt: new Date().toISOString(),
     forces: [],
     snapshots: [],
     tasks: [],
@@ -90,6 +91,16 @@ describe('overviewMarkers', () => {
     })
   })
 
+  it('sets baseColor to palette and color to stale-adjusted fill', () => {
+    const oldMove = new Date()
+    oldMove.setDate(oldMove.getDate() - 10)
+    const markers = overviewMarkers([
+      project({ lastMovedAt: oldMove.toISOString() }),
+    ])
+    expect(markers[0].baseColor).toBe('#C56B4A')
+    expect(markers[0].color).toBe(STALE_RED)
+  })
+
   it('includes trail ghosts from project snapshots excluding today', () => {
     const markers = overviewMarkers([
       project({
@@ -117,7 +128,7 @@ describe('markersForProject', () => {
             id: 'task_a',
             name: 'Task A',
             position: 40,
-            lastMovedAt: '',
+            lastMovedAt: new Date().toISOString(),
             forces: [
               {
                 id: 'f1',
@@ -137,8 +148,22 @@ describe('markersForProject', () => {
       }),
     )
     expect(markers).toHaveLength(2)
-    expect(markers[0]).toMatchObject({ id: 'proj_1', radius: 22, color: '#C56B4A', up: 0, down: 0 })
-    expect(markers[1]).toMatchObject({ id: 'task_a', radius: 11, color: '#C56B4A', up: 0, down: 1 })
+    expect(markers[0]).toMatchObject({
+      id: 'proj_1',
+      radius: 22,
+      baseColor: '#C56B4A',
+      color: '#C56B4A',
+      up: 0,
+      down: 0,
+    })
+    expect(markers[1]).toMatchObject({
+      id: 'task_a',
+      radius: 11,
+      baseColor: '#C56B4A',
+      color: '#C56B4A',
+      up: 0,
+      down: 1,
+    })
   })
 
   it('returns just the project marker when there are no tasks', () => {

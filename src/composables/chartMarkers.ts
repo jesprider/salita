@@ -2,12 +2,14 @@ import type { Force, ForceDirection, Project } from '../schema/types'
 import { PALETTE } from '../schema/palette'
 import { localDateString } from '../lib/localDate'
 import { trailGhosts, type TrailGhost } from '../domain/trailGhosts'
+import { staleFillColor } from '../domain/staleness'
 
 export type { TrailGhost }
 
 export interface ChartMarker {
   id: string
   position: number
+  baseColor: string
   color: string
   radius: number
   name: string
@@ -26,25 +28,30 @@ export function activeCount(forces: Force[], direction: ForceDirection): number 
 
 export function overviewMarkers(projects: Project[]): ChartMarker[] {
   const today = localDateString()
-  return projects.map((p) => ({
-    id: p.id,
-    position: p.position,
-    color: PALETTE[p.color],
-    radius: OVERVIEW_RADIUS,
-    name: p.name,
-    up: activeCount(p.forces, 'up'),
-    down: activeCount(p.forces, 'down'),
-    ghosts: trailGhosts(p.snapshots, today),
-  }))
+  return projects.map((p) => {
+    const baseColor = PALETTE[p.color]
+    return {
+      id: p.id,
+      position: p.position,
+      baseColor,
+      color: staleFillColor(baseColor, p.lastMovedAt),
+      radius: OVERVIEW_RADIUS,
+      name: p.name,
+      up: activeCount(p.forces, 'up'),
+      down: activeCount(p.forces, 'down'),
+      ghosts: trailGhosts(p.snapshots, today),
+    }
+  })
 }
 
 export function markersForProject(project: Project): ChartMarker[] {
   const today = localDateString()
-  const color = PALETTE[project.color]
+  const baseColor = PALETTE[project.color]
   const projectMarker: ChartMarker = {
     id: project.id,
     position: project.position,
-    color,
+    baseColor,
+    color: staleFillColor(baseColor, project.lastMovedAt),
     radius: PROJECT_RADIUS,
     name: project.name,
     up: activeCount(project.forces, 'up'),
@@ -54,7 +61,8 @@ export function markersForProject(project: Project): ChartMarker[] {
   const taskMarkers: ChartMarker[] = project.tasks.map((t) => ({
     id: t.id,
     position: t.position,
-    color,
+    baseColor,
+    color: staleFillColor(baseColor, t.lastMovedAt),
     radius: TASK_RADIUS,
     name: t.name,
     up: activeCount(t.forces, 'up'),
