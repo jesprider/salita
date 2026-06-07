@@ -34,7 +34,8 @@ code and implementation docs use the terms below.
 | `HillChartState` | Domain | Root store document: `projects[]`. |
 | `ChartMarker` | Presentation | Read model for one SVG marker (position, color, radius, force counts). |
 | `overviewMarkers` / `markersForProject` | Presentation | Build `ChartMarker[]` for a view. |
-| `ChartMarker.vue` | UI | Renders one marker on the hill. |
+| `MarkerChart.vue` | UI | Renders one marker on the hill. |
+| `MarkerTrail.vue` | UI | Renders snapshot ghost trail for the selected marker. |
 | `lookupInProject` | Application | Given a `Project` + id → `InProjectLookup` or null. |
 | `InProjectLookup` | Application | `{ kind: TrackableKind, trackable: HillTrackable }`. |
 | `TrackableKind` | Application | `'project' \| 'task'`. |
@@ -71,5 +72,5 @@ code and implementation docs use the terms below.
 | Domain types | `src/schema/types.ts` |
 | Chart projections | `src/composables/chartMarkers.ts` |
 | Panel lookup | `src/composables/trackableLookup.ts` |
-| Marker component | `src/components/ChartMarker.vue` |
+| Marker component | `src/components/MarkerChart.vue` |
 | Store | `src/stores/hillChart.ts` |

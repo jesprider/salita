@@ -2,7 +2,7 @@
 import { ref, onBeforeUnmount } from 'vue'
 import { useHillCurve } from '../composables/useHillCurve'
 import type { ChartMarker as ChartMarkerModel } from '../composables/chartMarkers'
-import ChartMarker from './ChartMarker.vue'
+import MarkerChart from './MarkerChart.vue'
 import MarkerTrail from './MarkerTrail.vue'
 
 const props = defineProps<{
@@ -91,7 +91,7 @@ onBeforeUnmount(onUp)
         :radius="m.radius"
         :color="m.color"
       />
-      <ChartMarker
+      <MarkerChart
         :cx="curveX(m.position)"
         :cy="curveY(m.position)"
         :radius="m.radius"
