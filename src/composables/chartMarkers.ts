@@ -2,7 +2,7 @@ import type { Force, ForceDirection, Project } from '../schema/types'
 import { PALETTE } from '../schema/palette'
 import { localDateString } from '../lib/localDate'
 import { trailGhosts, type TrailGhost } from '../domain/trailGhosts'
-import { stalenessSatelliteCount } from '../domain/staleness'
+import { stalenessSatelliteCount, DONE_POSITION } from '../domain/staleness'
 
 export type { TrailGhost }
 
@@ -67,4 +67,18 @@ export function markersForProject(project: Project): ChartMarker[] {
     ghosts: trailGhosts(t.snapshots, today),
   }))
   return [projectMarker, ...taskMarkers]
+}
+
+export function partitionMarkers(markers: ChartMarker[]): {
+  active: ChartMarker[]
+  done: ChartMarker[]
+} {
+  const active: ChartMarker[] = []
+  const done: ChartMarker[] = []
+  for (const m of markers) {
+    if (m.position === DONE_POSITION) done.push(m)
+    else active.push(m)
+  }
+  done.sort((a, b) => a.name.localeCompare(b.name))
+  return { active, done }
 }

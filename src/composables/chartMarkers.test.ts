@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import type { Project } from '../schema/types'
-import { activeCount, overviewMarkers, markersForProject } from './chartMarkers'
+import {
+  activeCount,
+  overviewMarkers,
+  markersForProject,
+  partitionMarkers,
+} from './chartMarkers'
 
 function project(overrides: Partial<Project> = {}): Project {
   return {
@@ -192,5 +197,34 @@ describe('markersForProject', () => {
       }),
     )
     expect(markers[1].ghosts).toEqual([{ position: 22, opacity: 0.7 }])
+  })
+})
+
+describe('partitionMarkers', () => {
+  it('keeps active markers on the curve and moves done to stack', () => {
+    const markers = overviewMarkers([
+      project({ id: 'a', name: 'Active', position: 50 }),
+      project({ id: 'b', name: 'Done', position: 100 }),
+    ])
+    const { active, done } = partitionMarkers(markers)
+    expect(active).toHaveLength(1)
+    expect(active[0].id).toBe('a')
+    expect(done).toHaveLength(1)
+    expect(done[0].id).toBe('b')
+  })
+
+  it('sorts done markers by name ascending', () => {
+    const markers = overviewMarkers([
+      project({ id: 'z', name: 'Zulu', position: 100 }),
+      project({ id: 'a', name: 'Alpha', position: 100 }),
+    ])
+    const { done } = partitionMarkers(markers)
+    expect(done.map((m) => m.name)).toEqual(['Alpha', 'Zulu'])
+  })
+
+  it('returns empty done when none at 100', () => {
+    const { active, done } = partitionMarkers(overviewMarkers([project()]))
+    expect(active).toHaveLength(1)
+    expect(done).toHaveLength(0)
   })
 })
