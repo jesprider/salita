@@ -1,11 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { Project } from '../schema/types'
-import {
-  activeCount,
-  overviewMarkers,
-  markersForProject,
-  partitionMarkers,
-} from './chartMarkers'
+import { activeCount, overviewMarkers, markersForProject, partitionMarkers } from './chartMarkers'
 
 function project(overrides: Partial<Project> = {}): Project {
   return {

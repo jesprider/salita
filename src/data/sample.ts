@@ -283,8 +283,8 @@ export const sampleState: HillChartState = {
         id: 'acme/docs#42',
         url: 'https://github.com/acme/docs/issues/42',
       },
-      position: 68,
-      lastMovedAt: isoDaysAgo(0),
+      position: 100,
+      lastMovedAt: isoDaysAgo(2),
       forces: [
         {
           id: 'f_3a',
@@ -309,8 +309,49 @@ export const sampleState: HillChartState = {
           resolutionReason: null,
         },
       ],
-      snapshots: trailSnapshots([50, 55, 60, 65, 68]),
-      tasks: [],
+      snapshots: trailSnapshots([50, 55, 60, 65, 68, 75, 85, 95, 100]),
+      tasks: [
+        {
+          id: 'task_3a',
+          name: 'Audit existing pages',
+          position: 100,
+          lastMovedAt: isoDaysAgo(5),
+          forces: [
+            {
+              id: 'f_3a_owner',
+              direction: 'up',
+              label: 'Owner',
+              owner: 'Lena',
+              isPrimary: true,
+              status: 'active',
+              createdAt: isoDaysAgo(15),
+              resolvedAt: null,
+              resolutionReason: null,
+            },
+          ],
+          snapshots: trailSnapshots([60, 72, 84, 92, 100]),
+        },
+        {
+          id: 'task_3b',
+          name: 'Publish new IA',
+          position: 100,
+          lastMovedAt: isoDaysAgo(1),
+          forces: [
+            {
+              id: 'f_3b_owner',
+              direction: 'up',
+              label: 'Owner',
+              owner: 'Dana',
+              isPrimary: true,
+              status: 'active',
+              createdAt: isoDaysAgo(10),
+              resolvedAt: null,
+              resolutionReason: null,
+            },
+          ],
+          snapshots: trailSnapshots([70, 82, 90, 100]),
+        },
+      ],
     },
     {
       id: 'proj_4',
