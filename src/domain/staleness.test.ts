@@ -3,6 +3,7 @@ import {
   STALENESS_MAX_SATELLITES,
   STALENESS_SATELLITE_START_DAY,
   daysSinceLastMove,
+  daysWithoutMovement,
   stalenessSatelliteCount,
 } from './staleness'
 
@@ -33,30 +34,44 @@ describe('daysSinceLastMove', () => {
 
 describe('stalenessSatelliteCount', () => {
   it('returns 0 when moved today', () => {
-    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 7), TODAY)).toBe(0)
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 7), 50, TODAY)).toBe(0)
   })
 
   it('returns 0 when moved yesterday (grace day)', () => {
-    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 6), TODAY)).toBe(0)
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 6), 50, TODAY)).toBe(0)
   })
 
   it('returns 1 on the second day without movement', () => {
-    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 5), TODAY)).toBe(1)
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 5), 50, TODAY)).toBe(1)
   })
 
   it('adds one satellite per day up to the cap', () => {
-    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 4), TODAY)).toBe(2)
-    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 3), TODAY)).toBe(3)
-    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 2), TODAY)).toBe(4)
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 4), 50, TODAY)).toBe(2)
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 3), 50, TODAY)).toBe(3)
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 2), 50, TODAY)).toBe(4)
   })
 
   it('caps at STALENESS_MAX_SATELLITES', () => {
-    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 5, 28), TODAY)).toBe(
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 5, 28), 50, TODAY)).toBe(
       STALENESS_MAX_SATELLITES,
     )
   })
 
+  it('returns 0 when done at position 100', () => {
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 5, 28), 100, TODAY)).toBe(0)
+  })
+
   it('starts showing satellites at STALENESS_SATELLITE_START_DAY', () => {
     expect(STALENESS_SATELLITE_START_DAY).toBe(2)
+  })
+})
+
+describe('daysWithoutMovement', () => {
+  it('returns 0 when done at position 100', () => {
+    expect(daysWithoutMovement(isoOnLocalDay(2026, 5, 28), 100, TODAY)).toBe(0)
+  })
+
+  it('returns calendar days otherwise', () => {
+    expect(daysWithoutMovement(isoOnLocalDay(2026, 6, 4), 50, TODAY)).toBe(3)
   })
 })

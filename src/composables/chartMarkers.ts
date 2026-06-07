@@ -40,7 +40,7 @@ export function overviewMarkers(projects: Project[]): ChartMarker[] {
       name: p.name,
       up: activeCount(p.forces, 'up'),
       down: activeCount(p.forces, 'down'),
-      stalenessSatellites: stalenessSatelliteCount(p.lastMovedAt),
+      stalenessSatellites: stalenessSatelliteCount(p.lastMovedAt, p.position),
       ghosts: trailGhosts(p.snapshots, today),
     }
   })
@@ -58,7 +58,7 @@ export function markersForProject(project: Project): ChartMarker[] {
     name: project.name,
     up: activeCount(project.forces, 'up'),
     down: activeCount(project.forces, 'down'),
-    stalenessSatellites: stalenessSatelliteCount(project.lastMovedAt),
+    stalenessSatellites: stalenessSatelliteCount(project.lastMovedAt, project.position),
     ghosts: trailGhosts(project.snapshots, today),
   }
   const taskMarkers: ChartMarker[] = project.tasks.map((t) => ({
@@ -70,7 +70,7 @@ export function markersForProject(project: Project): ChartMarker[] {
     name: t.name,
     up: activeCount(t.forces, 'up'),
     down: activeCount(t.forces, 'down'),
-    stalenessSatellites: stalenessSatelliteCount(t.lastMovedAt),
+    stalenessSatellites: stalenessSatelliteCount(t.lastMovedAt, t.position),
     ghosts: trailGhosts(t.snapshots, today),
   }))
   return [projectMarker, ...taskMarkers]
