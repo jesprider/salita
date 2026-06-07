@@ -86,10 +86,7 @@ function dotChipClass(id: string): string {
 
     <!-- N ≥ 2: collapsed header + optional expanded list -->
     <template v-else>
-      <div
-        class="flex cursor-pointer items-center gap-2"
-        @click="toggleExpanded"
-      >
+      <div class="flex cursor-pointer items-center gap-2" @click="toggleExpanded">
         <div class="flex shrink-0 items-center">
           <div
             v-for="(marker, index) in previewMarkers"

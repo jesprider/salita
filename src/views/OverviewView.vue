@@ -3,8 +3,9 @@ import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useHillChartStore } from '../stores/hillChart'
-import { overviewMarkers } from '../composables/chartMarkers'
+import { overviewMarkers, partitionMarkers } from '../composables/chartMarkers'
 import AppHeader from '../components/AppHeader.vue'
+import DoneStack from '../components/DoneStack.vue'
 import HillChart from '../components/HillChart.vue'
 import ImportButton from '../components/ImportButton.vue'
 import SidePanel from '../components/SidePanel.vue'
@@ -16,11 +17,15 @@ const store = useHillChartStore()
 const router = useRouter()
 const { projects, demo, canImport: importEnabled } = storeToRefs(store)
 const selectedTrackableId = ref<string | null>(null)
+const hillChartRef = ref<InstanceType<typeof HillChart> | null>(null)
 const importButtonRef = ref<InstanceType<typeof ImportButton> | null>(null)
 const importErrors = ref<string[]>([])
 const isDraggingFile = ref(false)
 
-const markers = computed(() => overviewMarkers(projects.value))
+const chartMarkers = computed(() => overviewMarkers(projects.value))
+const activeMarkers = computed(() => partitionMarkers(chartMarkers.value).active)
+const doneMarkers = computed(() => partitionMarkers(chartMarkers.value).done)
+const svgRef = computed(() => hillChartRef.value?.svgRef ?? null)
 
 const showDemoLabel = computed(() => demo.value && projects.value.length > 0)
 const isEmpty = computed(() => projects.value.length === 0)
@@ -213,13 +218,21 @@ async function onDrop(ev: DragEvent) {
       @dragleave="onDragLeave"
       @drop="onDrop"
     >
-      <div class="min-w-0 flex-1">
+      <div class="relative min-w-0 flex-1">
         <HillChart
+          ref="hillChartRef"
           clickable
-          :markers="markers"
+          :markers="activeMarkers"
           :selected-id="selectedTrackableId"
           @move="onMove"
           @open="onOpen"
+          @click="onTrackableClick"
+        />
+        <DoneStack
+          :done-markers="doneMarkers"
+          :selected-id="selectedTrackableId"
+          :svg-ref="svgRef"
+          @move="onMove"
           @click="onTrackableClick"
         />
       </div>

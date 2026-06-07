@@ -3,7 +3,8 @@ import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useHillChartStore } from '../stores/hillChart'
-import { markersForProject } from '../composables/chartMarkers'
+import { markersForProject, partitionMarkers } from '../composables/chartMarkers'
+import DoneStack from '../components/DoneStack.vue'
 import HillChart from '../components/HillChart.vue'
 import SidePanel from '../components/SidePanel.vue'
 
@@ -13,9 +14,13 @@ const store = useHillChartStore()
 const router = useRouter()
 const { projects } = storeToRefs(store)
 const selectedTrackableId = ref<string | null>(null)
+const hillChartRef = ref<InstanceType<typeof HillChart> | null>(null)
 
 const project = computed(() => projects.value.find((p) => p.id === props.id))
-const markers = computed(() => (project.value ? markersForProject(project.value) : []))
+const chartMarkers = computed(() => (project.value ? markersForProject(project.value) : []))
+const activeMarkers = computed(() => partitionMarkers(chartMarkers.value).active)
+const doneMarkers = computed(() => partitionMarkers(chartMarkers.value).done)
+const svgRef = computed(() => hillChartRef.value?.svgRef ?? null)
 
 watchEffect(() => {
   if (!project.value) router.replace('/projects')
@@ -23,7 +28,7 @@ watchEffect(() => {
 
 watchEffect(() => {
   if (!project.value || !selectedTrackableId.value) return
-  const ids = markers.value.map((m) => m.id)
+  const ids = chartMarkers.value.map((m) => m.id)
   if (!ids.includes(selectedTrackableId.value)) {
     selectedTrackableId.value = null
   }
@@ -61,12 +66,21 @@ function onAddTask() {
   </header>
   <section class="px-6 pb-6">
     <div class="mx-auto flex max-w-[1400px] items-start gap-6">
-      <div class="min-w-0 flex-1">
+      <div class="relative min-w-0 flex-1">
         <HillChart
           v-if="project"
-          :markers="markers"
+          ref="hillChartRef"
+          :markers="activeMarkers"
           :selected-id="selectedTrackableId"
           clickable
+          @move="onMove"
+          @click="onTrackableClick"
+        />
+        <DoneStack
+          v-if="project"
+          :done-markers="doneMarkers"
+          :selected-id="selectedTrackableId"
+          :svg-ref="svgRef"
           @move="onMove"
           @click="onTrackableClick"
         />
