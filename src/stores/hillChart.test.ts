@@ -14,7 +14,7 @@ describe('hillChart store', () => {
 
   it('seeds from the sample data', () => {
     const store = useHillChartStore()
-    expect(store.projects.length).toBe(4)
+    expect(store.projects.length).toBe(5)
     expect(store.projects[0].id).toBe('proj_1')
     expect(store.demo).toBe(true)
   })
@@ -417,7 +417,7 @@ describe('hillChart store', () => {
       expect(snapshot.demo).toBe(store.demo)
       expect(snapshot.lastDailyDate).toBe(store.lastDailyDate)
       expect(snapshot.projects).toBe(store.projects)
-      expect(snapshot.projects.length).toBe(4)
+      expect(snapshot.projects.length).toBe(5)
     })
 
     it('preserves demo true in snapshot while on sample data', () => {

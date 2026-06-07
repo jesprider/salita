@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-06-04T12:00:00.000Z",
+  "exportedAt": "2026-06-07T10:00:00.000Z",
   "projects": [
     {
       "id": "proj_demo_linear",
@@ -11,8 +11,8 @@
         "id": "ENG-42",
         "url": "https://linear.app/example/issue/ENG-42"
       },
-      "position": 28,
-      "lastMovedAt": "2026-06-03T09:00:00.000Z",
+      "position": 50,
+      "lastMovedAt": "2026-06-04T09:00:00.000Z",
       "forces": [
         {
           "id": "f_demo_p1_owner",
@@ -26,6 +26,17 @@
           "resolutionReason": null
         },
         {
+          "id": "f_demo_p1_help",
+          "direction": "up",
+          "label": "Pairing with platform SRE",
+          "owner": "Morgan Kim",
+          "isPrimary": false,
+          "status": "active",
+          "createdAt": "2026-05-28T09:00:00.000Z",
+          "resolvedAt": null,
+          "resolutionReason": null
+        },
+        {
           "id": "f_demo_p1_block",
           "direction": "down",
           "label": "Staging environment unstable",
@@ -35,11 +46,27 @@
           "createdAt": "2026-06-01T09:00:00.000Z",
           "resolvedAt": null,
           "resolutionReason": null
+        },
+        {
+          "id": "f_demo_p1_resolved",
+          "direction": "down",
+          "label": "Capacity planning sign-off",
+          "owner": null,
+          "isPrimary": false,
+          "status": "resolved",
+          "createdAt": "2026-05-20T09:00:00.000Z",
+          "resolvedAt": "2026-05-30T16:00:00.000Z",
+          "resolutionReason": "Infra team confirmed headroom"
         }
       ],
       "snapshots": [
-        { "date": "2026-06-01", "position": 18 },
-        { "date": "2026-06-02", "position": 24 }
+        { "date": "2026-05-31", "position": 22 },
+        { "date": "2026-06-01", "position": 28 },
+        { "date": "2026-06-02", "position": 34 },
+        { "date": "2026-06-03", "position": 42 },
+        { "date": "2026-06-04", "position": 48 },
+        { "date": "2026-06-05", "position": 50 },
+        { "date": "2026-06-06", "position": 50 }
       ],
       "tasks": [
         {
@@ -50,8 +77,8 @@
             "id": "ENG-108",
             "url": "https://linear.app/example/issue/ENG-108"
           },
-          "position": 15,
-          "lastMovedAt": "2026-06-03T09:00:00.000Z",
+          "position": 24,
+          "lastMovedAt": "2026-06-07T08:00:00.000Z",
           "forces": [
             {
               "id": "f_demo_t1_owner",
@@ -63,15 +90,31 @@
               "createdAt": "2026-05-20T09:00:00.000Z",
               "resolvedAt": null,
               "resolutionReason": null
+            },
+            {
+              "id": "f_demo_t1_block",
+              "direction": "down",
+              "label": "IdP certificate rotation",
+              "owner": null,
+              "isPrimary": false,
+              "status": "active",
+              "createdAt": "2026-06-05T09:00:00.000Z",
+              "resolvedAt": null,
+              "resolutionReason": null
             }
           ],
-          "snapshots": []
+          "snapshots": [
+            { "date": "2026-06-03", "position": 10 },
+            { "date": "2026-06-04", "position": 16 },
+            { "date": "2026-06-05", "position": 20 },
+            { "date": "2026-06-06", "position": 24 }
+          ]
         },
         {
           "id": "task_demo_webhooks",
           "name": "Webhook retry policy",
-          "position": 52,
-          "lastMovedAt": "2026-06-02T14:00:00.000Z",
+          "position": 58,
+          "lastMovedAt": "2026-06-06T14:00:00.000Z",
           "forces": [
             {
               "id": "f_demo_t2_owner",
@@ -85,18 +128,22 @@
               "resolutionReason": null
             },
             {
-              "id": "f_demo_t2_help",
-              "direction": "up",
-              "label": "Pairing with platform SRE",
-              "owner": "Morgan Kim",
+              "id": "f_demo_t2_block",
+              "direction": "down",
+              "label": "Queue backlog from legacy clients",
+              "owner": null,
               "isPrimary": false,
               "status": "active",
-              "createdAt": "2026-06-01T09:00:00.000Z",
+              "createdAt": "2026-06-02T09:00:00.000Z",
               "resolvedAt": null,
               "resolutionReason": null
             }
           ],
-          "snapshots": []
+          "snapshots": [
+            { "date": "2026-06-04", "position": 44 },
+            { "date": "2026-06-05", "position": 50 },
+            { "date": "2026-06-06", "position": 58 }
+          ]
         }
       ]
     },
@@ -109,8 +156,8 @@
         "id": "ONB-7",
         "url": "https://example.atlassian.net/browse/ONB-7"
       },
-      "position": 9,
-      "lastMovedAt": "2026-06-04T08:00:00.000Z",
+      "position": 74,
+      "lastMovedAt": "2026-06-07T07:30:00.000Z",
       "forces": [
         {
           "id": "f_demo_p2_owner",
@@ -120,6 +167,17 @@
           "isPrimary": true,
           "status": "active",
           "createdAt": "2026-05-10T08:00:00.000Z",
+          "resolvedAt": null,
+          "resolutionReason": null
+        },
+        {
+          "id": "f_demo_p2_block",
+          "direction": "down",
+          "label": "CRM sync latency",
+          "owner": null,
+          "isPrimary": false,
+          "status": "active",
+          "createdAt": "2026-06-01T08:00:00.000Z",
           "resolvedAt": null,
           "resolutionReason": null
         },
@@ -135,13 +193,20 @@
           "resolutionReason": "Approved with minor edits"
         }
       ],
-      "snapshots": [],
+      "snapshots": [
+        { "date": "2026-06-01", "position": 52 },
+        { "date": "2026-06-02", "position": 58 },
+        { "date": "2026-06-03", "position": 64 },
+        { "date": "2026-06-04", "position": 68 },
+        { "date": "2026-06-05", "position": 72 },
+        { "date": "2026-06-06", "position": 74 }
+      ],
       "tasks": [
         {
           "id": "task_demo_checklist",
           "name": "Progressive disclosure checklist",
           "position": 0,
-          "lastMovedAt": "2026-06-04T08:00:00.000Z",
+          "lastMovedAt": "2026-05-27T08:00:00.000Z",
           "forces": [
             {
               "id": "f_demo_t3_owner",
@@ -158,6 +223,39 @@
           "snapshots": []
         }
       ]
+    },
+    {
+      "id": "proj_demo_github",
+      "name": "Observability rollout",
+      "color": "rust",
+      "source": {
+        "system": "github",
+        "id": "acme/platform#512",
+        "url": "https://github.com/acme/platform/issues/512"
+      },
+      "position": 100,
+      "lastMovedAt": "2026-05-25T10:00:00.000Z",
+      "forces": [
+        {
+          "id": "f_demo_p3_owner",
+          "direction": "up",
+          "label": "Owner",
+          "owner": "Casey Ng",
+          "isPrimary": true,
+          "status": "active",
+          "createdAt": "2026-04-10T10:00:00.000Z",
+          "resolvedAt": null,
+          "resolutionReason": null
+        }
+      ],
+      "snapshots": [
+        { "date": "2026-05-20", "position": 80 },
+        { "date": "2026-05-21", "position": 86 },
+        { "date": "2026-05-22", "position": 92 },
+        { "date": "2026-05-23", "position": 96 },
+        { "date": "2026-05-24", "position": 100 }
+      ],
+      "tasks": []
     }
   ]
 }

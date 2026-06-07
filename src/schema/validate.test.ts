@@ -81,7 +81,9 @@ describe('validateHillChartJson', () => {
     const r = validateHillChartJson(raw)
     expect(r.ok).toBe(true)
     if (!r.ok) return
-    expect(r.state.projects).toHaveLength(2)
+    expect(r.state.projects).toHaveLength(3)
     expect(r.state.projects[0].name).toBe('Platform API migration')
+    expect(r.state.projects[0].position).toBe(50)
+    expect(r.state.projects[2].position).toBe(100)
   })
 })
