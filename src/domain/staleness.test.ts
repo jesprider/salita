@@ -1,14 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import {
-  STALE_RED,
-  STALENESS_FULL_DAYS,
+  STALENESS_MAX_SATELLITES,
+  STALENESS_SATELLITE_START_DAY,
   daysSinceLastMove,
-  stalenessRatio,
-  lerpHexColor,
-  staleFillColor,
+  stalenessSatelliteCount,
 } from './staleness'
 
-const TERRACOTTA = '#C56B4A'
 const TODAY = new Date(2026, 5, 7, 15, 0, 0) // local 2026-06-07
 
 function isoOnLocalDay(y: number, m: number, d: number, hour = 10): string {
@@ -34,58 +31,32 @@ describe('daysSinceLastMove', () => {
   })
 })
 
-describe('stalenessRatio', () => {
-  it('returns 0 for 0 days', () => {
-    expect(stalenessRatio(0)).toBe(0)
+describe('stalenessSatelliteCount', () => {
+  it('returns 0 when moved today', () => {
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 7), TODAY)).toBe(0)
   })
 
-  it('returns 0.2 for 1 day', () => {
-    expect(stalenessRatio(1)).toBeCloseTo(0.2)
+  it('returns 0 when moved yesterday (grace day)', () => {
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 6), TODAY)).toBe(0)
   })
 
-  it('returns 1 at STALENESS_FULL_DAYS', () => {
-    expect(stalenessRatio(STALENESS_FULL_DAYS)).toBe(1)
+  it('returns 1 on the second day without movement', () => {
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 5), TODAY)).toBe(1)
   })
 
-  it('caps at 1 beyond STALENESS_FULL_DAYS', () => {
-    expect(stalenessRatio(10)).toBe(1)
-  })
-})
-
-describe('lerpHexColor', () => {
-  it('returns from color at t=0', () => {
-    expect(lerpHexColor(TERRACOTTA, STALE_RED, 0)).toBe(TERRACOTTA)
+  it('adds one satellite per day up to the cap', () => {
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 4), TODAY)).toBe(2)
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 3), TODAY)).toBe(3)
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 6, 2), TODAY)).toBe(4)
   })
 
-  it('returns to color at t=1', () => {
-    expect(lerpHexColor(TERRACOTTA, STALE_RED, 1)).toBe(STALE_RED)
+  it('caps at STALENESS_MAX_SATELLITES', () => {
+    expect(stalenessSatelliteCount(isoOnLocalDay(2026, 5, 28), TODAY)).toBe(
+      STALENESS_MAX_SATELLITES,
+    )
   })
 
-  it('returns a valid #RRGGBB hex at midpoint', () => {
-    const mid = lerpHexColor(TERRACOTTA, STALE_RED, 0.5)
-    expect(mid).toMatch(/^#[0-9A-F]{6}$/)
-    expect(mid).not.toBe(TERRACOTTA)
-    expect(mid).not.toBe(STALE_RED)
-  })
-})
-
-describe('staleFillColor', () => {
-  it('returns project color unchanged when moved today', () => {
-    expect(staleFillColor(TERRACOTTA, isoOnLocalDay(2026, 6, 7), TODAY)).toBe(TERRACOTTA)
-  })
-
-  it('returns an intermediate color for a partially stale dot', () => {
-    const color = staleFillColor(TERRACOTTA, isoOnLocalDay(2026, 6, 6), TODAY)
-    expect(color).not.toBe(TERRACOTTA)
-    expect(color).not.toBe(STALE_RED)
-    expect(color).toMatch(/^#[0-9A-F]{6}$/)
-  })
-
-  it('returns STALE_RED after STALENESS_FULL_DAYS', () => {
-    expect(staleFillColor(TERRACOTTA, isoOnLocalDay(2026, 6, 2), TODAY)).toBe(STALE_RED)
-  })
-
-  it('returns STALE_RED when more than STALENESS_FULL_DAYS', () => {
-    expect(staleFillColor(TERRACOTTA, isoOnLocalDay(2026, 5, 28), TODAY)).toBe(STALE_RED)
+  it('starts showing satellites at STALENESS_SATELLITE_START_DAY', () => {
+    expect(STALENESS_SATELLITE_START_DAY).toBe(2)
   })
 })

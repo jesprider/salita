@@ -14,7 +14,7 @@ Distinct from the built-in `sample.ts` seed (different project names and ids).
 | Peak at 50 with active blockers | Platform API migration (`position: 50`) |
 | Downhill with active downs | Webhook retry task at 58 |
 | Snapshot history / ghost trails | All projects (select a dot after import) |
-| Staleness reddening | Varied `lastMovedAt` (fresh, partial, fully stale) |
+| Staleness satellites | Varied `lastMovedAt` (grace day, 1–4 red dots) |
 | Done dot at 100 | Observability rollout |
 | Tasks under projects | Platform API, Customer onboarding |
 
@@ -28,5 +28,5 @@ Distinct from the built-in `sample.ts` seed (different project names and ids).
 The file is validated in CI via `src/schema/validate.test.ts`.
 
 **Note:** `lastMovedAt` and snapshot dates are static ISO/calendar values. Staleness
-colors shift as real calendar time passes; the built-in `sample.ts` seed uses
+satellites shift as real calendar time passes; the built-in `sample.ts` seed uses
 relative dates and always demos staleness on first load.
