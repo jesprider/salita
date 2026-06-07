@@ -23,8 +23,9 @@ const satelliteRadius = computed(() => Math.max(3, Math.round(props.radius * 0.2
 /** Evenly spaced upper-arc slots (left → right); count uses the first N. */
 const ARC_START = (-4 * Math.PI) / 5
 const ARC_END = -Math.PI / 5
-const SATELLITE_ARC_ANGLES = Array.from({ length: 4 }, (_, i) =>
-  ARC_START + (i / 3) * (ARC_END - ARC_START),
+const SATELLITE_ARC_ANGLES = Array.from(
+  { length: 4 },
+  (_, i) => ARC_START + (i / 3) * (ARC_END - ARC_START),
 )
 
 const satelliteCoords = computed(() => {
