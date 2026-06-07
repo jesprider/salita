@@ -9,7 +9,7 @@ import type {
   Task,
 } from '../schema/types'
 import { sampleState } from '../data/sample'
-import { snapIfDownhillWithBlockers } from '../domain/forceRules'
+import { canCrossPeak, PEAK_POSITION, snapIfDownhillWithBlockers } from '../domain/forceRules'
 import { upsertSnapshot } from '../domain/snapshots'
 import { localDateString } from '../lib/localDate'
 import { PALETTE_ORDER } from '../schema/palette'
@@ -146,7 +146,13 @@ export const useHillChartStore = defineStore('hillChart', {
     setPosition(id: string, position: number) {
       const trackable = findTrackableById(this.projects, id)
       if (!trackable) return
-      trackable.position = Math.min(100, Math.max(0, Math.round(position)))
+      const current = trackable.position
+      let next = Math.min(100, Math.max(0, Math.round(position)))
+      if (!canCrossPeak(trackable.forces, next, current)) {
+        next = PEAK_POSITION
+      }
+      if (next === current) return
+      trackable.position = next
       trackable.lastMovedAt = new Date().toISOString()
     },
 

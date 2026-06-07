@@ -14,7 +14,6 @@ export function snapIfDownhillWithBlockers(trackable: HillTrackable): void {
   }
 }
 
-/** Used by setPosition in iteration 16 — not wired yet. */
 export function canCrossPeak(
   forces: Force[],
   newPosition: number,

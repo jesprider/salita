@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ForceDirection, Project } from '../schema/types'
 import { forcesByStatus, lookupInProject } from '../composables/trackableLookup'
+import { hasActiveDownForces } from '../domain/forceRules'
 import { parseSourceUrl, sourceOpenLabel } from '../domain/parseSourceUrl'
 import { useHillChartStore } from '../stores/hillChart'
 import ForceAddForm from './ForceAddForm.vue'
@@ -62,6 +63,10 @@ const pastDown = computed(() =>
 )
 
 const atPeak = computed(() => trackable.value?.position === 50)
+const hasActiveBlockers = computed(() =>
+  trackable.value ? hasActiveDownForces(trackable.value.forces) : false,
+)
+const showBlockerHint = computed(() => atPeak.value && hasActiveBlockers.value)
 
 const sourceUrl = computed(() => trackable.value?.source?.url)
 const sourceSystem = computed(() => trackable.value?.source?.system)
@@ -262,6 +267,9 @@ function onAddSave(direction: ForceDirection, payload: { label: string; owner: s
         <span class="w-8 text-right text-lg tabular-nums">{{ trackable.position }}</span>
       </div>
       <p v-if="atPeak" class="mt-1 text-sm text-text-warm/70">At the peak</p>
+      <p v-if="showBlockerHint" class="mt-1 text-sm text-text-warm/70">
+        Active blockers must be resolved before moving downhill.
+      </p>
     </section>
 
     <section class="mb-6">

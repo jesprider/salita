@@ -140,26 +140,78 @@ describe('hillChart store', () => {
 
   it('setPosition updates a project position and lastMovedAt', () => {
     const store = useHillChartStore()
-    const before = store.projects[0].lastMovedAt
-    store.setPosition('proj_1', 55)
-    expect(store.projects[0].position).toBe(55)
-    expect(store.projects[0].lastMovedAt).not.toBe(before)
-    expect(Date.now() - new Date(store.projects[0].lastMovedAt).getTime()).toBeLessThan(5000)
+    const before = store.projects[2].lastMovedAt
+    store.setPosition('proj_3', 55)
+    expect(store.projects[2].position).toBe(55)
+    expect(store.projects[2].lastMovedAt).not.toBe(before)
+    expect(Date.now() - new Date(store.projects[2].lastMovedAt).getTime()).toBeLessThan(5000)
   })
 
   it('setPosition rounds and clamps to 0..100', () => {
     const store = useHillChartStore()
     store.setPosition('proj_1', 23.7)
     expect(store.projects[0].position).toBe(24)
-    store.setPosition('proj_1', 150)
-    expect(store.projects[0].position).toBe(100)
-    store.setPosition('proj_1', -5)
-    expect(store.projects[0].position).toBe(0)
+    store.setPosition('proj_3', 150)
+    expect(store.projects[2].position).toBe(100)
+    store.setPosition('proj_3', -5)
+    expect(store.projects[2].position).toBe(0)
   })
 
   it('setPosition is a no-op for an unknown id', () => {
     const store = useHillChartStore()
     expect(() => store.setPosition('nope', 10)).not.toThrow()
+  })
+
+  describe('setPosition peak clamp', () => {
+    it('clamps crossing past peak when active downs exist', () => {
+      const store = useHillChartStore()
+      store.setPosition('proj_1', 40)
+      store.setPosition('proj_1', 55)
+      expect(store.projects[0].position).toBe(50)
+    })
+
+    it('allows landing exactly on peak with active downs', () => {
+      const store = useHillChartStore()
+      store.setPosition('proj_1', 48)
+      store.setPosition('proj_1', 50)
+      expect(store.projects[0].position).toBe(50)
+    })
+
+    it('allows crossing when no active downs', () => {
+      const store = useHillChartStore()
+      store.setPosition('proj_3', 40)
+      store.setPosition('proj_3', 55)
+      expect(store.projects[2].position).toBe(55)
+    })
+
+    it('allows moves while already downhill with active downs', () => {
+      const store = useHillChartStore()
+      store.projects[0].position = 60
+      store.setPosition('proj_1', 80)
+      expect(store.projects[0].position).toBe(80)
+    })
+
+    it('does not bump lastMovedAt when clamped at unchanged position', () => {
+      const store = useHillChartStore()
+      store.setPosition('proj_1', 50)
+      const before = store.projects[0].lastMovedAt
+      store.setPosition('proj_1', 55)
+      expect(store.projects[0].position).toBe(50)
+      expect(store.projects[0].lastMovedAt).toBe(before)
+    })
+
+    it('allows cross after resolving all downs', () => {
+      const store = useHillChartStore()
+      store.setPosition('proj_1', 50)
+      const downs = store.projects[0].forces.filter(
+        (f) => f.direction === 'down' && f.status === 'active',
+      )
+      for (const f of downs) {
+        store.resolveForce('proj_1', f.id)
+      }
+      store.setPosition('proj_1', 55)
+      expect(store.projects[0].position).toBe(55)
+    })
   })
 
   describe('updateTrackable', () => {
@@ -193,14 +245,14 @@ describe('hillChart store', () => {
   describe('force mutations', () => {
     it('addForce up at position 70 keeps position', () => {
       const store = useHillChartStore()
-      store.setPosition('proj_1', 70)
-      const countBefore = store.projects[0].forces.length
+      store.setPosition('proj_3', 70)
+      const countBefore = store.projects[2].forces.length
 
-      store.addForce('proj_1', 'up', 'Helper', 'Sam')
+      store.addForce('proj_3', 'up', 'Helper', 'Sam')
 
-      expect(store.projects[0].position).toBe(70)
-      expect(store.projects[0].forces.length).toBe(countBefore + 1)
-      const added = store.projects[0].forces.at(-1)!
+      expect(store.projects[2].position).toBe(70)
+      expect(store.projects[2].forces.length).toBe(countBefore + 1)
+      const added = store.projects[2].forces.at(-1)!
       expect(added.direction).toBe('up')
       expect(added.label).toBe('Helper')
       expect(added.owner).toBe('Sam')
@@ -210,12 +262,12 @@ describe('hillChart store', () => {
 
     it('addForce down at position 70 snaps to 45', () => {
       const store = useHillChartStore()
-      store.setPosition('proj_1', 70)
+      store.setPosition('proj_3', 70)
 
-      store.addForce('proj_1', 'down', 'New blocker')
+      store.addForce('proj_3', 'down', 'New blocker')
 
-      expect(store.projects[0].position).toBe(BLOCKER_SNAP_POSITION)
-      expect(store.projects[0].forces.some((f) => f.label === 'New blocker')).toBe(true)
+      expect(store.projects[2].position).toBe(BLOCKER_SNAP_POSITION)
+      expect(store.projects[2].forces.some((f) => f.label === 'New blocker')).toBe(true)
     })
 
     it('addForce down at position 40 does not move the dot', () => {
@@ -250,9 +302,9 @@ describe('hillChart store', () => {
 
     it('unresolveForce down at position 60 snaps to 45', () => {
       const store = useHillChartStore()
-      store.setPosition('proj_1', 60)
       const force = store.projects[0].forces.find((f) => f.id === 'f_1c')!
       store.resolveForce('proj_1', force.id)
+      store.projects[0].position = 60
 
       store.unresolveForce('proj_1', force.id)
 
