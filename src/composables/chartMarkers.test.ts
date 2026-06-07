@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import type { Project } from '../schema/types'
-import { STALE_RED } from '../domain/staleness'
 import { activeCount, overviewMarkers, markersForProject } from './chartMarkers'
 
 function project(overrides: Partial<Project> = {}): Project {
@@ -91,12 +90,13 @@ describe('overviewMarkers', () => {
     })
   })
 
-  it('sets baseColor to palette and color to stale-adjusted fill', () => {
+  it('sets baseColor to palette and staleness satellites when stale', () => {
     const oldMove = new Date()
     oldMove.setDate(oldMove.getDate() - 10)
     const markers = overviewMarkers([project({ lastMovedAt: oldMove.toISOString() })])
     expect(markers[0].baseColor).toBe('#C56B4A')
-    expect(markers[0].color).toBe(STALE_RED)
+    expect(markers[0].color).toBe('#C56B4A')
+    expect(markers[0].stalenessSatellites).toBe(4)
   })
 
   it('includes trail ghosts from project snapshots excluding today', () => {

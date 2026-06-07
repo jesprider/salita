@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import type { ForceDirection, Project } from '../schema/types'
 import { forcesByStatus, lookupInProject } from '../composables/trackableLookup'
 import { hasActiveDownForces } from '../domain/forceRules'
+import { daysSinceLastMove } from '../domain/staleness'
 import { parseSourceUrl, sourceOpenLabel } from '../domain/parseSourceUrl'
 import { useHillChartStore } from '../stores/hillChart'
 import ForceAddForm from './ForceAddForm.vue'
@@ -67,6 +68,14 @@ const hasActiveBlockers = computed(() =>
   trackable.value ? hasActiveDownForces(trackable.value.forces) : false,
 )
 const showBlockerHint = computed(() => atPeak.value && hasActiveBlockers.value)
+const daysWithoutMovement = computed(() =>
+  trackable.value ? daysSinceLastMove(trackable.value.lastMovedAt) : 0,
+)
+const stalenessLabel = computed(() => {
+  const days = daysWithoutMovement.value
+  if (days === 0) return null
+  return days === 1 ? '1 day without movement' : `${days} days without movement`
+})
 
 const sourceUrl = computed(() => trackable.value?.source?.url)
 const sourceSystem = computed(() => trackable.value?.source?.system)
@@ -266,6 +275,7 @@ function onAddSave(direction: ForceDirection, payload: { label: string; owner: s
         />
         <span class="w-8 text-right text-lg tabular-nums">{{ trackable.position }}</span>
       </div>
+      <p v-if="stalenessLabel" class="mt-1 text-sm text-text-warm/70">{{ stalenessLabel }}</p>
       <p v-if="atPeak" class="mt-1 text-sm text-text-warm/70">At the peak</p>
       <p v-if="showBlockerHint" class="mt-1 text-sm text-text-warm/70">
         Active blockers must be resolved before moving downhill.

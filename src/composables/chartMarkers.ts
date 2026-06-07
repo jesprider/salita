@@ -2,7 +2,7 @@ import type { Force, ForceDirection, Project } from '../schema/types'
 import { PALETTE } from '../schema/palette'
 import { localDateString } from '../lib/localDate'
 import { trailGhosts, type TrailGhost } from '../domain/trailGhosts'
-import { staleFillColor } from '../domain/staleness'
+import { stalenessSatelliteCount } from '../domain/staleness'
 
 export type { TrailGhost }
 
@@ -15,6 +15,7 @@ export interface ChartMarker {
   name: string
   up: number
   down: number
+  stalenessSatellites: number
   ghosts: TrailGhost[]
 }
 
@@ -34,11 +35,12 @@ export function overviewMarkers(projects: Project[]): ChartMarker[] {
       id: p.id,
       position: p.position,
       baseColor,
-      color: staleFillColor(baseColor, p.lastMovedAt),
+      color: baseColor,
       radius: OVERVIEW_RADIUS,
       name: p.name,
       up: activeCount(p.forces, 'up'),
       down: activeCount(p.forces, 'down'),
+      stalenessSatellites: stalenessSatelliteCount(p.lastMovedAt),
       ghosts: trailGhosts(p.snapshots, today),
     }
   })
@@ -51,22 +53,24 @@ export function markersForProject(project: Project): ChartMarker[] {
     id: project.id,
     position: project.position,
     baseColor,
-    color: staleFillColor(baseColor, project.lastMovedAt),
+    color: baseColor,
     radius: PROJECT_RADIUS,
     name: project.name,
     up: activeCount(project.forces, 'up'),
     down: activeCount(project.forces, 'down'),
+    stalenessSatellites: stalenessSatelliteCount(project.lastMovedAt),
     ghosts: trailGhosts(project.snapshots, today),
   }
   const taskMarkers: ChartMarker[] = project.tasks.map((t) => ({
     id: t.id,
     position: t.position,
     baseColor,
-    color: staleFillColor(baseColor, t.lastMovedAt),
+    color: baseColor,
     radius: TASK_RADIUS,
     name: t.name,
     up: activeCount(t.forces, 'up'),
     down: activeCount(t.forces, 'down'),
+    stalenessSatellites: stalenessSatelliteCount(t.lastMovedAt),
     ghosts: trailGhosts(t.snapshots, today),
   }))
   return [projectMarker, ...taskMarkers]

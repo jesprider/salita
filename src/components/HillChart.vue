@@ -96,6 +96,7 @@ onBeforeUnmount(onUp)
         :cy="curveY(m.position)"
         :radius="m.radius"
         :color="m.color"
+        :staleness-satellites="m.stalenessSatellites"
         :name="m.name"
         :up="m.up"
         :down="m.down"
