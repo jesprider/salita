@@ -39,8 +39,9 @@ whose status is `pending`** and work only that scope.
   end-daily snapshots.
 - Hill chart: ghost trail of last 10 snapshots behind the **selected** dot
   (opacity ramp oldest → newest); ghost trails keep project color.
-- Staleness: live dots redden toward `#C04A2D` by days since last move (ghost
-  trails unchanged).
+- Staleness: red **satellites** on the upper arc of live dots (one per day without
+  movement from day 2, max 4); side panel shows days without movement; skipped at
+  position 100. Ghost trails keep project color.
 - Peak: drag/slider clamp at 50 with active blockers; panel hint at peak.
 - Store: persist plugin; force mutations; done stack pending later iterations.
 
@@ -66,7 +67,7 @@ whose status is `pending`** and work only that scope.
 | 14 | end-daily | **done** | M5 |
 | 15 | trail-on-chart | **done** | M5 |
 | 16 | peak-crossing | **done** | M6 |
-| 17 | staleness | **done** | M6 |
+| 17 | staleness-satellites | **done** | M6 |
 | 18 | done-stack | **pending** | M6 |
 | 19 | panel-sparkline-delete | **pending** | M6 |
 | 20 | landing-page | **pending** | M6 |
@@ -359,16 +360,22 @@ in the panel.
 
 ---
 
-### Iteration 17 — Staleness reddening
+### Iteration 17 — Staleness satellites
 
-**Goal:** Dots that haven’t moved in days visually age.
+**Goal:** Dots that haven’t moved in days show warning satellites; panel states how long.
 
 **Deliverables:**
 
-- `composables/useStaleness.ts` (or inline in `chartMarkers`): `staleness =
-  min(daysSinceLastMove / 5, 1)`; lerp project color → `#C04A2D` (parent spec
-  §5.8).
-- Apply to marker fill in `ChartMarker.vue` / `ChartMarker`.
+- `src/domain/staleness.ts`: `daysSinceLastMove`, `stalenessSatelliteCount`,
+  `daysWithoutMovement`; constants `STALE_RED`, `STALENESS_MAX_SATELLITES`,
+  `STALENESS_SATELLITE_START_DAY`, `DONE_POSITION`.
+- `ChartMarker.stalenessSatellites` via `chartMarkers.ts`; render on
+  `MarkerChart.vue` (upper arc, left → right, max 4).
+- Side panel Position section: “N day(s) without movement” when
+  `daysSinceLastMove ≥ 1`; skipped at position 100.
+- Main dot fill stays project palette; ghost trails unchanged.
+
+**Design doc:** `docs/superpowers/specs/2026-06-07-salita-iteration-17-staleness-design.md`
 
 ---
 

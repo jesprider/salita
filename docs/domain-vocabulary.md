@@ -20,7 +20,9 @@ code and implementation docs use the terms below.
 | **Force** | Up (assignee, helpers) or down (blockers) context on a project or task. |
 | **Resolve (force)** | Mark a force resolved; moves to past section. |
 | **Daily / End daily** | Standup ritual; snapshot positions for today. |
-| **Snapshot / trail** | Historical positions for staleness and ghost markers. |
+| **Snapshot / trail** | Historical positions for ghost markers on the chart. |
+| **Staleness satellite** | Small red marker orbiting a dot; one per day without movement (from day 2, max 4). Skipped at position 100 (done). |
+| **Days without movement** | Local calendar days since `lastMovedAt`; shown in the side panel. Grace day: moved yesterday → 0 satellites, panel may still show “1 day”. |
 
 ---
 
@@ -32,10 +34,13 @@ code and implementation docs use the terms below.
 | `Task` | Domain | Entity inside `Project.tasks`. |
 | `HillTrackable` | Domain | Shared shape: id, name, position, forces, snapshots, optional `source`. Implemented by `Project` and `Task`. |
 | `HillChartState` | Domain | Root store document: `projects[]`. |
-| `ChartMarker` | Presentation | Read model for one SVG marker (position, color, radius, force counts). |
+| `ChartMarker` | Presentation | Read model for one SVG marker (position, color, radius, force counts, `stalenessSatellites`). |
 | `overviewMarkers` / `markersForProject` | Presentation | Build `ChartMarker[]` for a view. |
-| `MarkerChart.vue` | UI | Renders one marker on the hill. |
+| `MarkerChart.vue` | UI | Renders one marker on the hill (main dot + staleness satellites). |
 | `MarkerTrail.vue` | UI | Renders snapshot ghost trail for the selected marker. |
+| `stalenessSatelliteCount` | Domain (`domain/staleness.ts`) | How many red satellites to draw (0–4); skipped at `DONE_POSITION` (100). |
+| `daysWithoutMovement` | Domain | Calendar days since last move; powers side-panel copy. |
+| `daysSinceLastMove` | Domain | Raw calendar-day diff from `lastMovedAt` to today. |
 | `lookupInProject` | Application | Given a `Project` + id → `InProjectLookup` or null. |
 | `InProjectLookup` | Application | `{ kind: TrackableKind, trackable: HillTrackable }`. |
 | `TrackableKind` | Application | `'project' \| 'task'`. |
@@ -53,6 +58,8 @@ code and implementation docs use the terms below.
 | Task dot | `Task` | `ChartMarker` (small radius) |
 | Click a dot | Select by `id` | `lookupInProject` + side panel |
 | Drag a dot | `setPosition(trackableId, …)` | Updates `Project` or `Task` |
+| Staleness satellites | `stalenessSatelliteCount(lastMovedAt, position)` | Red dots on `MarkerChart` |
+| Days without movement (panel) | `daysWithoutMovement(lastMovedAt, position)` | Position section copy |
 | Resolve a blocker | `resolveForce` | — |
 
 ---
@@ -71,6 +78,7 @@ code and implementation docs use the terms below.
 |------|----------------|
 | Domain types | `src/schema/types.ts` |
 | Chart projections | `src/composables/chartMarkers.ts` |
+| Staleness rules | `src/domain/staleness.ts` |
 | Panel lookup | `src/composables/trackableLookup.ts` |
 | Marker component | `src/components/MarkerChart.vue` |
 | Store | `src/stores/hillChart.ts` |

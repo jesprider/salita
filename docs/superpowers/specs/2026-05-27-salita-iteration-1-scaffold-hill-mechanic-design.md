@@ -140,7 +140,7 @@ Each project dot:
 - an `↑N ↓N` badge counting active up vs. active down forces from the dot's
   `forces` array.
 
-Done-stacking, staleness reddening, and snapshot trails are **not** rendered.
+Done-stacking, staleness satellites, and snapshot trails are **not** rendered.
 
 ---
 
@@ -179,7 +179,7 @@ Deferred to later iterations (all specified in the parent spec):
 
 - Side panel; force add / edit / resolve UX
 - Snapshots, "End daily", position trail
-- Staleness reddening
+- Staleness satellites
 - Done-dot stacking column
 - Peak-crossing auto-resolve of forces
 - Import / Export / Clean

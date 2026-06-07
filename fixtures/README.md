@@ -14,7 +14,7 @@ Distinct from the built-in `sample.ts` seed (different project names and ids).
 | Peak at 50 with active blockers | Platform API migration (`position: 50`) |
 | Downhill with active downs | Webhook retry task at 58 |
 | Snapshot history / ghost trails | All projects (select a dot after import) |
-| Staleness satellites | Varied `lastMovedAt` (grace day, 1–4 red dots) |
+| Staleness satellites | Varied `lastMovedAt` (grace day, 1–4 red satellites on upper arc) |
 | Done dot at 100 | Observability rollout |
 | Tasks under projects | Platform API, Customer onboarding |
 
