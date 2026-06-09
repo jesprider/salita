@@ -3,7 +3,18 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { ForceDirection, Project } from '../schema/types'
 import { forcesByStatus, lookupInProject } from '../composables/trackableLookup'
-import { hasActiveDownForces } from '../domain/forceRules'
+import {
+  allTasksDone,
+  isProjectDoneBlocked,
+  PROJECT_DONE_BLOCKED_MESSAGE,
+  PROJECT_DONE_CLAMP,
+} from '../domain/doneRules'
+import {
+  hasActiveDownForces,
+  isPeakCrossingBlocked,
+  PEAK_CROSSING_BLOCKED_MESSAGE,
+  PEAK_POSITION,
+} from '../domain/forceRules'
 import { daysWithoutMovement } from '../domain/staleness'
 import { parseSourceUrl, sourceOpenLabel } from '../domain/parseSourceUrl'
 import { useHillChartStore } from '../stores/hillChart'
@@ -36,6 +47,12 @@ const nameInvalid = ref(false)
 const linkInvalid = ref(false)
 const nameRef = ref<HTMLInputElement | null>(null)
 const linkRef = ref<HTMLInputElement | null>(null)
+const projectDoneAttempted = ref(false)
+const peakCrossingAttempted = ref(false)
+
+const lookup = computed(() => lookupInProject(props.project, props.trackableId))
+const trackable = computed(() => lookup.value?.trackable ?? null)
+const kind = computed(() => lookup.value?.kind ?? null)
 
 watch(
   () => props.trackableId,
@@ -43,12 +60,18 @@ watch(
     editingForceId.value = null
     addingDirection.value = null
     editingHeader.value = false
+    projectDoneAttempted.value = false
+    peakCrossingAttempted.value = false
   },
 )
 
-const lookup = computed(() => lookupInProject(props.project, props.trackableId))
-const trackable = computed(() => lookup.value?.trackable ?? null)
-const kind = computed(() => lookup.value?.kind ?? null)
+watch(
+  () => trackable.value?.position,
+  (position) => {
+    if (position !== PROJECT_DONE_CLAMP) projectDoneAttempted.value = false
+    if (position !== PEAK_POSITION) peakCrossingAttempted.value = false
+  },
+)
 
 const activeUp = computed(() =>
   trackable.value ? forcesByStatus(trackable.value.forces, 'up', 'active') : [],
@@ -67,7 +90,14 @@ const atPeak = computed(() => trackable.value?.position === 50)
 const hasActiveBlockers = computed(() =>
   trackable.value ? hasActiveDownForces(trackable.value.forces) : false,
 )
-const showBlockerHint = computed(() => atPeak.value && hasActiveBlockers.value)
+const showBlockerHint = computed(() => {
+  if (!trackable.value || !hasActiveBlockers.value) return false
+  return atPeak.value || peakCrossingAttempted.value
+})
+const showProjectDoneHint = computed(() => {
+  if (kind.value !== 'project' || allTasksDone(props.project) || !trackable.value) return false
+  return trackable.value.position === PROJECT_DONE_CLAMP || projectDoneAttempted.value
+})
 const daysWithoutMovementCount = computed(() =>
   trackable.value ? daysWithoutMovement(trackable.value.lastMovedAt, trackable.value.position) : 0,
 )
@@ -141,6 +171,14 @@ function onHeaderKeydown(event: KeyboardEvent) {
 
 function onSliderInput(event: Event) {
   const value = Number((event.target as HTMLInputElement).value)
+  if (trackable.value) {
+    if (isPeakCrossingBlocked(trackable.value.forces, value, trackable.value.position)) {
+      peakCrossingAttempted.value = true
+    }
+    if (kind.value === 'project' && isProjectDoneBlocked(props.project, value)) {
+      projectDoneAttempted.value = true
+    }
+  }
   store.setPosition(props.trackableId, value)
 }
 
@@ -278,7 +316,10 @@ function onAddSave(direction: ForceDirection, payload: { label: string; owner: s
       <p v-if="stalenessLabel" class="mt-1 text-sm text-text-warm/70">{{ stalenessLabel }}</p>
       <p v-if="atPeak" class="mt-1 text-sm text-text-warm/70">At the peak</p>
       <p v-if="showBlockerHint" class="mt-1 text-sm text-text-warm/70">
-        Active blockers must be resolved before moving downhill.
+        {{ PEAK_CROSSING_BLOCKED_MESSAGE }}
+      </p>
+      <p v-if="showProjectDoneHint" class="mt-1 text-sm text-text-warm/70">
+        {{ PROJECT_DONE_BLOCKED_MESSAGE }}
       </p>
     </section>
 

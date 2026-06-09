@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import type { Project } from '../schema/types'
-import { activeCount, overviewMarkers, markersForProject, partitionMarkers } from './chartMarkers'
+import {
+  activeCount,
+  overviewMarkers,
+  markersForProject,
+  partitionMarkers,
+  partitionMarkersForProjectView,
+} from './chartMarkers'
 
 function project(overrides: Partial<Project> = {}): Project {
   return {
@@ -221,5 +227,56 @@ describe('partitionMarkers', () => {
     const { active, done } = partitionMarkers(overviewMarkers([project()]))
     expect(active).toHaveLength(1)
     expect(done).toHaveLength(0)
+  })
+})
+
+describe('partitionMarkersForProjectView', () => {
+  it('keeps the project dot on the hill at 100 and stacks done tasks', () => {
+    const markers = markersForProject(
+      project({
+        position: 100,
+        tasks: [
+          {
+            id: 'task_a',
+            name: 'Task A',
+            position: 100,
+            lastMovedAt: new Date().toISOString(),
+            forces: [],
+            snapshots: [],
+          },
+          {
+            id: 'task_b',
+            name: 'Task B',
+            position: 40,
+            lastMovedAt: new Date().toISOString(),
+            forces: [],
+            snapshots: [],
+          },
+        ],
+      }),
+    )
+    const { active, done } = partitionMarkersForProjectView(markers, 'proj_1')
+    expect(active.map((m) => m.id).sort()).toEqual(['proj_1', 'task_b'])
+    expect(active.find((m) => m.id === 'proj_1')?.radius).toBe(22)
+    expect(done.map((m) => m.id)).toEqual(['task_a'])
+  })
+
+  it('matches partitionMarkers when the project is not done', () => {
+    const markers = markersForProject(
+      project({
+        position: 50,
+        tasks: [
+          {
+            id: 'task_a',
+            name: 'Task A',
+            position: 100,
+            lastMovedAt: new Date().toISOString(),
+            forces: [],
+            snapshots: [],
+          },
+        ],
+      }),
+    )
+    expect(partitionMarkersForProjectView(markers, 'proj_1')).toEqual(partitionMarkers(markers))
   })
 })
