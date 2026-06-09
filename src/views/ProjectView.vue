@@ -3,10 +3,12 @@ import { computed, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useHillChartStore } from '../stores/hillChart'
-import { markersForProject, partitionMarkers } from '../composables/chartMarkers'
+import { markersForProject, partitionMarkersForProjectView } from '../composables/chartMarkers'
 import DoneStack from '../components/DoneStack.vue'
 import HillChart from '../components/HillChart.vue'
 import SidePanel from '../components/SidePanel.vue'
+import { lookupInProject } from '../composables/trackableLookup'
+import { useChartBlockNudge } from '../composables/useChartBlockNudge'
 
 const props = defineProps<{ id: string }>()
 
@@ -18,9 +20,15 @@ const hillChartRef = ref<InstanceType<typeof HillChart> | null>(null)
 
 const project = computed(() => projects.value.find((p) => p.id === props.id))
 const chartMarkers = computed(() => (project.value ? markersForProject(project.value) : []))
-const activeMarkers = computed(() => partitionMarkers(chartMarkers.value).active)
-const doneMarkers = computed(() => partitionMarkers(chartMarkers.value).done)
+const partitioned = computed(() =>
+  project.value
+    ? partitionMarkersForProjectView(chartMarkers.value, project.value.id)
+    : { active: [], done: [] },
+)
+const activeMarkers = computed(() => partitioned.value.active)
+const doneMarkers = computed(() => partitioned.value.done)
 const svgRef = computed(() => hillChartRef.value?.svgRef ?? null)
+const { chartBlockMessage, maybeNudgeOnMove } = useChartBlockNudge()
 
 watchEffect(() => {
   if (!project.value) router.replace('/projects')
@@ -35,6 +43,9 @@ watchEffect(() => {
 })
 
 function onMove(id: string, position: number) {
+  if (!project.value) return
+  const lookup = lookupInProject(project.value, id)
+  maybeNudgeOnMove(lookup?.trackable, project.value, id, position)
   store.setPosition(id, position)
 }
 
@@ -67,6 +78,13 @@ function onAddTask() {
   <section class="px-6 pb-6">
     <div class="mx-auto flex max-w-[1400px] items-start gap-6">
       <div class="relative min-w-0 flex-1">
+        <p
+          v-if="chartBlockMessage"
+          role="status"
+          class="pointer-events-none absolute top-2 right-2 left-2 z-20 rounded-lg bg-rust/10 px-3 py-2 text-center text-sm text-rust"
+        >
+          {{ chartBlockMessage }}
+        </p>
         <HillChart
           v-if="project"
           ref="hillChartRef"

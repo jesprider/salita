@@ -5,6 +5,7 @@ import {
   PEAK_POSITION,
   canCrossPeak,
   hasActiveDownForces,
+  isPeakCrossingBlocked,
   snapIfDownhillWithBlockers,
 } from './forceRules'
 
@@ -96,5 +97,19 @@ describe('canCrossPeak', () => {
 
   it('allows landing exactly on the peak', () => {
     expect(canCrossPeak([downForce()], PEAK_POSITION, 48)).toBe(true)
+  })
+})
+
+describe('isPeakCrossingBlocked', () => {
+  it('is true when crossing past peak with active downs', () => {
+    expect(isPeakCrossingBlocked([downForce()], 55, 48)).toBe(true)
+  })
+
+  it('is false when move stays uphill', () => {
+    expect(isPeakCrossingBlocked([downForce()], 45, 40)).toBe(false)
+  })
+
+  it('is false when already downhill', () => {
+    expect(isPeakCrossingBlocked([downForce()], 80, 60)).toBe(false)
   })
 })

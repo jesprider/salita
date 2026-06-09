@@ -12,6 +12,7 @@ import SidePanel from '../components/SidePanel.vue'
 import { downloadJson } from '../lib/downloadJson'
 import { localDateString } from '../lib/localDate'
 import { validateHillChartJson } from '../schema/validate'
+import { useChartBlockNudge } from '../composables/useChartBlockNudge'
 
 const store = useHillChartStore()
 const router = useRouter()
@@ -26,6 +27,7 @@ const chartMarkers = computed(() => overviewMarkers(projects.value))
 const activeMarkers = computed(() => partitionMarkers(chartMarkers.value).active)
 const doneMarkers = computed(() => partitionMarkers(chartMarkers.value).done)
 const svgRef = computed(() => hillChartRef.value?.svgRef ?? null)
+const { chartBlockMessage, maybeNudgeOnMove } = useChartBlockNudge()
 
 const showDemoLabel = computed(() => demo.value && projects.value.length > 0)
 const isEmpty = computed(() => projects.value.length === 0)
@@ -52,6 +54,8 @@ watchEffect(() => {
 })
 
 function onMove(id: string, position: number) {
+  const proj = projects.value.find((p) => p.id === id)
+  maybeNudgeOnMove(proj, proj, id, position)
   store.setPosition(id, position)
 }
 
@@ -219,6 +223,13 @@ async function onDrop(ev: DragEvent) {
       @drop="onDrop"
     >
       <div class="relative min-w-0 flex-1">
+        <p
+          v-if="chartBlockMessage"
+          role="status"
+          class="pointer-events-none absolute top-2 right-2 left-2 z-20 rounded-lg bg-rust/10 px-3 py-2 text-center text-sm text-rust"
+        >
+          {{ chartBlockMessage }}
+        </p>
         <HillChart
           ref="hillChartRef"
           clickable

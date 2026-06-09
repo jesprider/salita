@@ -2,7 +2,12 @@
 import { describe, it, expect } from 'vitest'
 import type { Project, Task } from '../schema/types'
 import { DONE_POSITION } from './staleness'
-import { allTasksDone, clampProjectDonePosition, PROJECT_DONE_CLAMP } from './doneRules'
+import {
+  allTasksDone,
+  clampProjectDonePosition,
+  isProjectDoneBlocked,
+  PROJECT_DONE_CLAMP,
+} from './doneRules'
 
 function task(position: number): Task {
   return {
@@ -39,6 +44,20 @@ describe('allTasksDone', () => {
 
   it('is false when any task is below DONE_POSITION', () => {
     expect(allTasksDone(project([task(100), task(99)]))).toBe(false)
+  })
+})
+
+describe('isProjectDoneBlocked', () => {
+  it('is false below done position', () => {
+    expect(isProjectDoneBlocked(project([task(50)]), 99)).toBe(false)
+  })
+
+  it('is true at done position when tasks remain open', () => {
+    expect(isProjectDoneBlocked(project([task(99)]), DONE_POSITION)).toBe(true)
+  })
+
+  it('is false at done position when all tasks are done', () => {
+    expect(isProjectDoneBlocked(project([task(100)]), DONE_POSITION)).toBe(false)
   })
 })
 

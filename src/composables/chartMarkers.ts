@@ -82,3 +82,19 @@ export function partitionMarkers(markers: ChartMarker[]): {
   done.sort((a, b) => a.name.localeCompare(b.name))
   return { active, done }
 }
+
+/** Project view: done tasks stack; the project dot stays on the hill even at 100. */
+export function partitionMarkersForProjectView(
+  markers: ChartMarker[],
+  projectId: string,
+): { active: ChartMarker[]; done: ChartMarker[] } {
+  const { active, done } = partitionMarkers(markers)
+  const projectMarker = markers.find((m) => m.id === projectId)
+  if (!projectMarker || projectMarker.position !== DONE_POSITION) {
+    return { active, done }
+  }
+  return {
+    active: [...active, projectMarker],
+    done: done.filter((m) => m.id !== projectId),
+  }
+}
